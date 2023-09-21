@@ -11,7 +11,7 @@ In it's first iteration Syllabist Engine will have the following features:
   - Sourcing Plain Text word files.
   - Syllabifying Plain Text word files into a separated Plain Text.
   - Transforming the separated Plain Text files into JSON format.
-  - Compressing the JSON into syllabist format.
+  - Compressing the JSON into `syllabist` format.
 
 - Gameplay:
   - Comparing a list of selected syllables with the JSON structure to determine
@@ -48,6 +48,13 @@ Text file and matching a syllable list to a data structure should be covered as
 thoroughly as possible by e2e tests.
 
 All `Deno` components should have benchmarks.
+
+## Testing and Benchmark Exclusions
+
+| Component    | Exclusion               | Reason                                            |
+| ------------ | ----------------------- | ------------------------------------------------- |
+| Constants.js | Unit tests & Benchmarks | No executable code                                |
+| Stubs.js     | Benchmarks              | Test utility for which performance is unimportant |
 
 ## Status
 
