@@ -5,7 +5,7 @@ import { Expander } from "../../Expander.js";
 
 export const defaults = {
   files: {
-    input: "flat.map",
+    input: "flat.syb",
     output: "expand.json",
   },
 };

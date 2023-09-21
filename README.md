@@ -11,7 +11,7 @@ In it's first iteration Syllabist Engine will have the following features:
   - Sourcing Plain Text word files.
   - Syllabifying Plain Text word files into a separated Plain Text.
   - Transforming the separated Plain Text files into JSON format.
-  - Compressing the JSON into flat map format.
+  - Compressing the JSON into syllabist format.
 
 - Gameplay:
   - Comparing a list of selected syllables with the JSON structure to determine

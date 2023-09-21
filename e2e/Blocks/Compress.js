@@ -5,7 +5,7 @@ import { Compressor } from "../../Compressor.js";
 export const defaults = {
   files: {
     input: "transform.json",
-    output: "flat.map",
+    output: "flat.syb",
   },
 };
 
