@@ -7,7 +7,7 @@ export class Compressor {
   #stack;
 
   /**
-   * @param {Object} data to be parsed into flat map format
+   * @param {Object} data to be parsed into syllabist format
    */
   constructor(data) {
     console.info("Constructing new instance");
@@ -16,7 +16,7 @@ export class Compressor {
   }
 
   /**
-   * @returns a `String` containing the parsed data in flat map format
+   * @returns a `String` containing the parsed data in syllabist format
    */
   parse() {
     console.info("Starting parse");
