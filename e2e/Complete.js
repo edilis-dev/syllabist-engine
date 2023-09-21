@@ -1,12 +1,12 @@
 import { assertEquals } from "https://deno.land/std@0.144.0/testing/asserts.ts";
 
-import { cleanup } from "./Blocks/setup.js";
-import { compress, defaults as defaultsCompress } from "./Blocks/compress.js";
-import { defaults as defaultsExpand, expand } from "./Blocks/expand.js";
+import { cleanup } from "./Blocks/Setup.js";
+import { compress, defaults as defaultsCompress } from "./Blocks/Compress.js";
+import { defaults as defaultsExpand, expand } from "./Blocks/Expand.js";
 import {
   defaults as defaultsTransform,
   transform,
-} from "./Blocks/transform.js";
+} from "./Blocks/Transform.js";
 import { standardise } from "../Format.js";
 
 await cleanup(

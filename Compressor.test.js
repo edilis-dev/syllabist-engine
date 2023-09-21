@@ -20,20 +20,6 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should throw an error for invalid combinator",
-  fn: () => {
-    const compressor = new Compressor({
-      a: {
-        "": "",
-      },
-    });
-
-    assertThrows(() => compressor.parse(), Error, "Invalid Combinator");
-  },
-  ignore: false,
-});
-
-Deno.test({
   name: "should ignores unparseable types",
   fn: () => {
     const actual = new Compressor({
@@ -106,7 +92,7 @@ Deno.test({
       },
     }).parse();
 
-    const expected = "a>bout";
+    const expected = "a>[bout]";
 
     assertEquals(actual, expected);
   },
@@ -142,7 +128,7 @@ Deno.test({
       },
     }).parse();
 
-    const expected = "wa>ter~[borne]";
+    const expected = "wa>[ter~[borne]]";
 
     assertEquals(actual, expected);
   },
@@ -165,7 +151,7 @@ Deno.test({
       },
     }).parse();
 
-    const expected = "a>ban>[don~[ment]|doned]";
+    const expected = "a>[ban>[don~[ment]|doned]]";
 
     assertEquals(actual, expected);
   },
@@ -220,7 +206,7 @@ Deno.test({
       },
     }).parse();
 
-    const expected = "ac>com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]";
+    const expected = "ac>[com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]]";
 
     assertEquals(actual, expected);
   },

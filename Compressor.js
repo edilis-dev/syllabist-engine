@@ -51,10 +51,6 @@ export class Compressor {
     return Object.keys(value).some((value) => value === "");
   }
 
-  #isGroup({ value }) {
-    return Object.keys(value).length > 1;
-  }
-
   #isLast({ key, value }) {
     return Object.keys(value).at(-1) === key;
   }
@@ -75,21 +71,13 @@ export class Compressor {
       );
       this.#stack.push(key, Symbol.Combinator);
 
-      if (this.#isGroup({ value: value[key] })) {
-        console.trace(`Starting group of ${key}`);
-        this.#stack.push(Symbol.GroupStart);
-        console.trace(`Starting parse of ${key}`);
-        this.#parse({ value: value[key] });
-        console.trace(`Finished parse of ${key}`);
-        this.#stack.push(Symbol.GroupEnd);
-        console.trace(`Finished group of ${key}`);
-      } else {
-        console.error(
-          `Invalid ${reverseLookup(Symbol, Symbol.Combinator)} for key ${key}`,
-        );
-
-        throw new Error(`Invalid ${reverseLookup(Symbol, Symbol.Combinator)}`);
-      }
+      console.trace(`Starting group of ${key}`);
+      this.#stack.push(Symbol.GroupStart);
+      console.trace(`Starting parse of ${key}`);
+      this.#parse({ value: value[key] });
+      console.trace(`Finished parse of ${key}`);
+      this.#stack.push(Symbol.GroupEnd);
+      console.trace(`Finished group of ${key}`);
     } else if (this.#isConcatenator({ value: value[key] })) {
       console.trace(
         `Identified relationship for ${key} as ${
@@ -101,18 +89,12 @@ export class Compressor {
       );
       this.#stack.push(key, Symbol.Concatenator);
 
-      if (this.#isGroup({ value: value[key] }) || this.#isSibling({ value })) {
-        console.trace(`Starting group of ${key}`);
-        this.#stack.push(Symbol.GroupStart);
-        console.trace(`Starting parse of ${key}`);
-        this.#parse({ value: value[key] });
-        console.trace(`Finished parse of ${key}`);
-        this.#stack.push(Symbol.GroupEnd);
-      } else {
-        console.trace(`Starting parse of ${key}`);
-        this.#parse({ value: value[key] });
-        console.trace(`Finished parse of ${key}`);
-      }
+      console.trace(`Starting group of ${key}`);
+      this.#stack.push(Symbol.GroupStart);
+      console.trace(`Starting parse of ${key}`);
+      this.#parse({ value: value[key] });
+      console.trace(`Finished parse of ${key}`);
+      this.#stack.push(Symbol.GroupEnd);
     } else {
       console.trace(`Failed to identify relationship for key ${key}`);
     }
@@ -135,7 +117,7 @@ export class Compressor {
         continue;
       }
 
-      if (this.#isSibling({ value }) && !this.#isLast({ key, value })) {
+      if (key && this.#isSibling({ value }) && !this.#isLast({ key, value })) {
         console.trace(`Identified ${key} as a sibling not in last place `);
         this.#stack.push(Symbol.Sibling);
       }
