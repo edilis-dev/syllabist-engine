@@ -1,7 +1,7 @@
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.144.0/testing/asserts.ts";
+} from "https://deno.land/std@0.202.0/testing/asserts.ts";
 
 import { Transformer } from "./Transformer.js";
 

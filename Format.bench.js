@@ -1,10 +1,21 @@
-import { standardise } from "./Format.js";
+import { Standard } from "./Constants.js";
+import { Standardise } from "./Format.js";
 
 Deno.bench({
-  name: "should standardise JSON",
+  name: "should Standardise JSON",
   fn: () => {
-    standardise({
+    Standardise({
       data: '{"a":{"ble":"ble","bout":"bout"\}}',
+    });
+  },
+});
+
+Deno.bench({
+  name: "should Standardise Text",
+  fn: () => {
+    Standardise({
+      data: "    text    ",
+      type: Standard.Text,
     });
   },
 });

@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  format:
+  Format:
     runs-on: ubuntu-latest
     
     steps:
@@ -32,7 +32,7 @@ jobs:
       - name: Run linter
         run: deno lint
 
-  test:
+  Test:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,7 +45,7 @@ jobs:
           deno-version: v1.x
 
       - name: Run tests
-        run: deno test --coverage=cov_profile
+        run: deno test --allow-all --coverage=cov_profile
 
       - name: Collect coverage
         run: deno coverage ./cov_profile --lcov > coverage.lcov
@@ -58,7 +58,7 @@ jobs:
           # Repository upload token - get it from codecov.io. Required only for private repositories
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  workflow:  
+  Complete:  
     runs-on: ubuntu-latest
 
     steps:
@@ -71,4 +71,40 @@ jobs:
           deno-version: v1.x
 
       - name: Run Complete Workflow
-        run: cd e2e && deno run --allow-read --allow-write Complete.js
+        run: |
+          cd e2e
+          deno run --allow-all Workflows/Complete.js
+
+  Compress-Expand:  
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+    
+      - name: Setup Deno
+        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31
+        with:
+          deno-version: v1.x
+    
+      - name: Run Complete Workflow
+        run: |
+          cd e2e
+          deno run --allow-all Workflows/Compress-Expand.js
+
+  Transform-Compress:  
+    runs-on: ubuntu-latest
+        
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+        
+      - name: Setup Deno
+        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31
+        with:
+          deno-version: v1.x
+        
+      - name: Run Complete Workflow
+        run: |
+          cd e2e
+          deno run --allow-all Workflows/Transform-Compress.js

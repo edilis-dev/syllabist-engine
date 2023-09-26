@@ -1,16 +1,17 @@
 import {
   assert,
   assertThrows,
-} from "https://deno.land/std@0.144.0/testing/asserts.ts";
+} from "https://deno.land/std@0.202.0/testing/asserts.ts";
 
-import { standardise } from "./Format.js";
+import { Standardise } from "./Format.js";
+import { Standard } from "./Constants.js";
 
 Deno.test({
   name: "should throw an error for missing data",
   fn: () => {
     assertThrows(
       () =>
-        standardise({
+        Standardise({
           data: "",
         }),
       Error,
@@ -25,7 +26,7 @@ Deno.test({
   fn: () => {
     assertThrows(
       () =>
-        standardise({
+        Standardise({
           data: '{"a":{"ble":"ble","bout":"bout"\}}',
           type: null,
         }),
@@ -37,9 +38,9 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should standardise JSON",
+  name: "should Standardise JSON",
   fn: () => {
-    const actual = standardise({
+    const actual = Standardise({
       data: '{"a":{"ble":"ble","bout":"bout"\}}',
     });
 
@@ -49,6 +50,21 @@ Deno.test({
         bout: "bout",
       },
     };
+
+    assert(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "should Standardise JSON",
+  fn: () => {
+    const actual = Standardise({
+      data: "    text  ",
+      type: Standard.Text,
+    });
+
+    const expected = "test";
 
     assert(actual, expected);
   },

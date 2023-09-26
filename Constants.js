@@ -4,10 +4,6 @@ export const Type = Object.freeze({
   Value: "value",
 });
 
-export const Standardise = {
-  JSON: "json",
-};
-
 export const Symbol = Object.freeze({
   Combinator: "~",
   Concatenator: ">",
@@ -15,5 +11,10 @@ export const Symbol = Object.freeze({
   GroupStart: "[",
   Sibling: "|",
 });
+
+export const Standard = {
+  JSON: "json",
+  Text: "text",
+};
 
 export const Charset = new RegExp(`[${Object.values(Symbol).join("\\")}a-z-]`);
