@@ -1,16 +1,14 @@
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.144.0/testing/asserts.ts";
+} from "https://deno.land/std@0.202.0/testing/asserts.ts";
 
 import { Expander } from "./Expander.js";
 
 Deno.test({
   name: "should throw an error for missing data",
   fn: async () => {
-    const expander = new Expander();
-
-    await assertRejects(() => expander.parse(), Error);
+    await assertRejects(() => new Expander().parse(), Error);
   },
   ignore: false,
 });
@@ -24,9 +22,7 @@ Deno.test({
       },
     };
 
-    const expander = new Expander(iter);
-
-    await assertRejects(() => expander.parse(), Error, "Empty line");
+    await assertRejects(() => new Expander(iter).parse(), Error, "Empty line");
   },
   ignore: false,
 });
