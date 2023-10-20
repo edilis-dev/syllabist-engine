@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.202.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.204.0/testing/asserts.ts";
 import { resolve } from "https://deno.land/std@0.201.0/path/mod.ts";
 
 import { Cleanup } from "../Actions/Utility/Cleanup.js";
@@ -16,12 +16,14 @@ await Transform.transform({
     output: resolve(tmp, Transform.defaults.files.output),
   },
 });
+
 await Compress.compress({
   files: {
     input: resolve(tmp, Compress.defaults.files.input),
     output: resolve(tmp, Compress.defaults.files.output),
   },
 });
+
 await Expand.expand({
   files: {
     input: resolve(tmp, Expand.defaults.files.input),
@@ -32,6 +34,7 @@ await Expand.expand({
 const actual = await Deno.readTextFile(
   resolve(tmp, Expand.defaults.files.output),
 );
+
 const expected = await Deno.readTextFile(
   resolve(Deno.cwd(), "Expected/Complete.json"),
 );

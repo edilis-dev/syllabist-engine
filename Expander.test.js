@@ -1,7 +1,7 @@
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.202.0/testing/asserts.ts";
+} from "https://deno.land/std@0.204.0/testing/asserts.ts";
 
 import { Expander } from "./Expander.js";
 
