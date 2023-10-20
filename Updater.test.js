@@ -1,13 +1,13 @@
-import { assertRejects } from "https://deno.land/std@0.202.0/testing/asserts.ts";
+import { assertRejects } from "https://deno.land/std@0.204.0/testing/asserts.ts";
 import {
   assertSpyCallArgs,
   assertSpyCalls,
-} from "https://deno.land/std@0.202.0/testing/mock.ts";
+} from "https://deno.land/std@0.204.0/testing/mock.ts";
 import {
   Status,
   STATUS_TEXT,
-} from "https://deno.land/std@0.202.0/http/http_status.ts";
-import { FakeTime } from "https://deno.land/std@0.202.0/testing/time.ts";
+} from "https://deno.land/std@0.204.0/http/http_status.ts";
+import { FakeTime } from "https://deno.land/std@0.204.0/testing/time.ts";
 
 import { fetch, readTextFile, remove, writeTextFile } from "./Stubs.js";
 import { Updater } from "./Updater.js";

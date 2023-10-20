@@ -1,6 +1,6 @@
-import "https://deno.land/std@0.202.0/dotenv/load.ts";
+import "https://deno.land/std@0.204.0/dotenv/load.ts";
+import { encodeHex } from "https://deno.land/std@0.204.0/encoding/hex.ts";
 import { resolve } from "https://deno.land/std@0.201.0/path/mod.ts";
-import { toHashString } from "https://deno.land/std@0.194.0/crypto/to_hash_string.ts";
 
 import { Calendar } from "./Calendar.js";
 
@@ -91,7 +91,7 @@ export class Updater {
     console.info("Digesting file");
     const encoder = new TextEncoder().encode(this.#data);
     const buffer = await crypto.subtle.digest("SHA-256", encoder);
-    this.#digest = toHashString(buffer);
+    this.#digest = encodeHex(buffer);
     console.trace(`Calculated digest ${this.#digest}`);
     console.info("Finished digesting file");
   }
