@@ -9,7 +9,7 @@ import {
   assertRejects,
 } from "https://deno.land/std@0.204.0/testing/asserts.ts";
 
-import { Stubs } from "./Stubs.js";
+import * as Stubs from "./Stubs.js";
 
 Deno.test({
   name: "fetch stub should return success",

@@ -1,4 +1,4 @@
-# syllabist-engine
+# Syllabist Engine
 
 Syllabist Engine will provider the underlying logic for the
 [Syllab.ist](https://syllab.ist) word game.

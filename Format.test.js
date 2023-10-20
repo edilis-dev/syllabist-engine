@@ -14,7 +14,7 @@ Deno.test({
         Standardise({
           data: "",
         }),
-      Error,
+      TypeError,
       "Empty data",
     );
   },
@@ -30,7 +30,7 @@ Deno.test({
           data: '{"a":{"ble":"ble","bout":"bout"\}}',
           type: null,
         }),
-      Error,
+      TypeError,
       "Unhandled type null",
     );
   },

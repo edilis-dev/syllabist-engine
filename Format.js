@@ -1,8 +1,21 @@
 import { Standard } from "./Constants.js";
 
-export const Standardise = ({ data, type = Standard.JSON }) => {
+/**
+ * @module Format
+ */
+
+/**
+ * Formats the input data consistently according to the specified type.
+ *
+ * @param {Object} properties
+ * @param {string} properties.data Data to be formatted
+ * @param {string} [properties.type=JSON] Type identifier
+ * @returns {string} The formatted input data.
+ * @throws {TypeError} If data is mising or type is unrecognised.
+ */
+export function Standardise({ data, type = Standard.JSON }) {
   if (!data) {
-    throw new Error("Empty data");
+    throw new TypeError("Empty data");
   }
 
   switch (type) {
@@ -13,6 +26,6 @@ export const Standardise = ({ data, type = Standard.JSON }) => {
       return data.trim();
     }
     default:
-      throw new Error(`Unhandled type ${type}`);
+      throw new TypeError(`Unhandled type ${type}`);
   }
-};
+}

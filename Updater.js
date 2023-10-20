@@ -1,28 +1,83 @@
 import "https://deno.land/std@0.204.0/dotenv/load.ts";
 import { encodeHex } from "https://deno.land/std@0.204.0/encoding/hex.ts";
-import { resolve } from "https://deno.land/std@0.201.0/path/mod.ts";
+import { resolve } from "https://deno.land/std@0.204.0/path/mod.ts";
 
 import { Calendar } from "./Calendar.js";
 
+/**
+ * The Updater <code>class</code> is responsible for retrieving a source file which contains a plain text word list.
+ * Depending on whether the hashed contents of the file has changed since the last retrieval the Updater may save the
+ * file and update the <code><a href="##manifest">#manifest</a></code> file which a new entry. At which point older entries
+ * will be marked as obsolete. Regardless of whether the file has changed existing content will be audited. Any contents
+ * which is older than the limit defined by the <code><a href="##config.lifetime">#lifetime</a></code> will be purged.
+ */
 export class Updater {
+  /**
+   * Configuration for the manifest and content file loactions and obsolete contents lifetime.
+   *
+   * @alias &num;config
+   * @memberof Updater
+   * @private
+   * @property {string | null} artifacts
+   * @property {string | null} latest
+   * @property {number | null} lifetime
+   * @property {string | null} manifest
+   * @type {Record<string, string | null>}
+   */
   #config = {
     artifacts: null,
     latest: null,
     lifetime: null,
     manifest: null,
   };
+
+  /**
+   * Contents of the text file.
+   *
+   * @alias &num;data
+   * @memberof Updater
+   * @private
+   * @type {string}
+   */
   #data;
+
+  /**
+   * Base64 encoded contents of the text file.
+   *
+   * @alias &num;digest
+   * @memberof Updater
+   * @private
+   * @type {string}
+   */
   #digest;
+
+  /**
+   * Stored content of the manifest file.
+   *
+   * @alias &num;manifest
+   * @memberof Updater
+   * @private
+   * @type {Record<string, unknown>}
+   */
   #manifest;
+
+  /**
+   * Absolute URL which represents the location of the text file.
+   *
+   * @alias &num;source
+   * @default <code><a href="https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt">words_alpha.txt</a></code>
+   * @memberof Updater
+   * @private
+   * @type {string}
+   */
   #source =
     "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt";
 
   /**
-   * This function orchestrates the fetching of a plain text file from the `source` property.
-   * Storing of the fetched artifact in the filesystem, archiving the previous version and
-   * pruning of any files which have been archived over a configurable period of time ago.
+   * Fetches the file from the source. Compares the contents and updates manifest, if necessary. Then purges obsolete content.
    *
-   * @param {String} source of a Plain Text file to be retrieved
+   * @param {string} source Absolute URL of text file to be retrieved
+   * @returns {Promise<void>}
    */
   async update(source) {
     try {
@@ -54,6 +109,17 @@ export class Updater {
     }
   }
 
+  /**
+   * Fetches the file from the source.
+   *
+   * @alias &num;fetch
+   * @memberof Updater
+   * @param {string} [source=this.#source] Absolute URL of text file to be retrieved
+   * @private
+   * @returns {Promise<void>}
+   * @see <code><a href="##source">#source</a></code>
+   * @throws {TypeError} If request fails or file contents cannot be processed.
+   */
   async #fetch(source = this.#source) {
     console.info("Starting fetch");
     console.trace(`Source ${source}`);
@@ -81,10 +147,19 @@ export class Updater {
         }`,
       );
 
-      throw new Error(JSON.stringify(json) || text || response.statusText);
+      throw new TypeError(JSON.stringify(json) || text || response.statusText);
     }
   }
 
+  /**
+   * Hashes the contents of the retrieved file.
+   *
+   * @alias &num;hash
+   * @memberof Updater
+   * @private
+   * @returns {Promise<void>}
+   * @see <code><a href="##data">#data</a></code>
+   */
   async #hash() {
     console.info("Digesting file");
     const encoder = new TextEncoder().encode(this.#data);
@@ -94,6 +169,16 @@ export class Updater {
     console.info("Finished digesting file");
   }
 
+  /**
+   * Removes obsolete content files from the filesystem and the manifest file. The determination if a file is obsolete is configured by the configuration lifetime.
+   *
+   * @alias &num;prune
+   * @memberof Updater
+   * @private
+   * @returns {Promise<void>}
+   * @see <code><a href="##manifest">#manifest</a></code>
+   * @see <code><a href="##config">#config.lifetime</a></code>
+   */
   async #prune() {
     console.info("Pruning manifest");
     const timestamp = new Calendar(new Date(Date.now()));
@@ -158,6 +243,15 @@ export class Updater {
     console.info("Finished pruning");
   }
 
+  /**
+   * Reads the contents of the manifest file from the file system.
+   *
+   * @alias &num;read
+   * @memberof Updater
+   * @private
+   * @returns {Promise<void>}
+   * @see <code><a href="##manifest">#manifest</a></code>
+   */
   async #read() {
     console.info("Reading manifest");
     const path = resolve(this.#config.artifacts, this.#config.manifest);
@@ -167,6 +261,15 @@ export class Updater {
     console.info(`Finished reading manifest`);
   }
 
+  /**
+   * Updates the contents of the manifest file and writes the update file to the file system.
+   *
+   * @alias &num;update
+   * @memberof Updater
+   * @private
+   * @returns {Promise<void>}
+   * @see <code><a href="##manifest">#manifest</a></code>
+   */
   async #update() {
     console.info("Updating manifest");
     const timestamp = new Date(Date.now());
@@ -213,6 +316,14 @@ export class Updater {
     console.info("Finished updating manifest");
   }
 
+  /**
+   * Writes the contents of the retrieved file to the file system.
+   *
+   * @alias &num;write
+   * @memberof Updater
+   * @private
+   * @returns {Promise<void>}
+   */
   async #write() {
     console.info("Writing artifact");
     const path = resolve(this.#config.artifacts, `${this.#digest}.txt`);

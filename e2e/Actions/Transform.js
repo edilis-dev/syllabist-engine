@@ -1,4 +1,4 @@
-import { readLines } from "https://deno.land/std@0.201.0/io/mod.ts";
+import { readLines } from "https://deno.land/std@0.204.0/io/mod.ts";
 
 import { Transformer } from "../../Transformer.js";
 

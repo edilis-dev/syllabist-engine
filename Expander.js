@@ -1,46 +1,66 @@
 import { Charset, Symbol, Type } from "./Constants.js";
-import { reverseLookup } from "./Helpers.js";
+import { ReverseLookup } from "./Helpers.js";
 
+/**
+ * The Expander <code>class</code> is responsible for expanding a Syllabist structure into a <code>JSON</code> structure.
+ */
 export class Expander {
-  #char;
-  #lines;
-  #stack;
-  #value;
+  /**
+   * <code>Iterator</code> which returns a character at a time from the current line.
+   *
+   * @alias &num;forward
+   * @memberof Expander
+   * @private
+   * @type {Iterator<string>}
+   */
+  #forward;
 
   /**
-   * @param {AsyncIterableIterator<String>} iter an asynchronous iterator returning a
-   * `String` from a collection. This could be a constructed `Iterator` or a `FileReader`.
+   * <code>AsyncIterableIterator</code> which returns a line of text representing a single Syllabist word.
+   *
+   * @alias &num;lines
+   * @memberof Expander
+   * @private
+   * @type {AsyncIterableIterator<string>}
+   */
+  #lines;
+
+  /**
+   * @param {AsyncIterableIterator<string>} iter A collection of Syllabist words.
    */
   constructor(iter) {
     console.info("Constructing new instance");
 
     this.#lines = iter;
-    this.#value = {};
   }
 
   /**
-   * This function consumes the `Iterator` passed into the instance of `Expander`. If no `Iterator`
-   * has been previously set, or it returns an invalid value this function will throw.
+   * Iterates through all the lines of text provided by <code><a href="##lines">#lines</a></code>. Creates a new JSON object containing nested syllables which when traversed in a
+   * depth-first search represent a complete word.
    *
-   * @returns a Promise which may resolve with an Object or reject with an Error
+   * @async
+   * @returns {Promise<Record<string, string>>} Resolves with the expanded Syllabist structure.
+   * @throws {TypeError} If <a href="#*iterator"><code>*iterator</code></a> returns an empty line.
    */
   async parse() {
     console.info("Starting parse");
 
     try {
+      let value = {};
+
       for await (const line of this.#lines) {
-        this.#char = this.iterator(line);
-        this.#stack = [];
-        this.#value = {
-          ...this.#value,
-          ...this.#parse(this.#value),
+        this.#forward = this.iterator(line);
+
+        value = {
+          ...value,
+          ...this.#parse(),
         };
       }
 
       console.info("Parse finished");
-      console.trace(`Parse result ${JSON.stringify(this.#value)}`);
+      console.trace(`Parse result ${JSON.stringify(value)}`);
 
-      return this.#value;
+      return value;
     } catch (error) {
       console.error(`Parse errored with reason: ${error.message}`);
 
@@ -49,14 +69,21 @@ export class Expander {
   }
 
   /**
-   * This function is public as iterators cannot be made private,
-   * however it should _not_ be used directly
+   * Iterates through a given <code>string</code> a character at a time.
+   *
+   * @alias &ast;iterator
+   * @memberof Expander
+   * @generator
+   * @private
+   * @param {string} line The current line being expanded.
+   * @returns {Generator<string, void, void>}
+   * @yields {string}
    */
   *iterator(line) {
     let counter = 0;
 
     if (!line) {
-      throw new Error("Empty line");
+      throw new TypeError("Empty line");
     }
 
     console.trace(`Starting iterator with ${line}`);
@@ -67,7 +94,23 @@ export class Expander {
     }
   }
 
-  #insert({ key, type, value }) {
+  /**
+   * Inserts key into value, the depth at which the current value is inserted is determined by the stack and the type of value to be inserted is
+   * determined by type.
+   *
+   * @alias &num;insert
+   * @function
+   * @memberof Expander
+   * @param {Object} [properties={}]
+   * @param {string} properties.key The current character set which represents part of a Syllabist word
+   * @param {Array<string>} properties.stack The sets of characters which represent the ancestors of the current set of characters
+   * @param {string} properties.type The type of value to be inserted into the JSON structure
+   * @param {Record<string, string>} properties.value The JSON structure to insert the set
+   * @private
+   * @returns {Record<string, string>}
+   * @see [Expander#Type]{@linkcode module:Constants.Type}
+   */
+  #insert({ key, stack, type, value }) {
     if (!key) {
       console.trace(
         `Inserting ${type.toUpperCase()} without key into ${
@@ -88,7 +131,7 @@ export class Expander {
       );
     }
 
-    const target = this.#stack.reduce(
+    const target = stack.reduce(
       (previousValue, currentValue) => previousValue[currentValue],
       value,
     );
@@ -120,8 +163,22 @@ export class Expander {
     }
   }
 
-  #parse({ key = "", value = {} } = {}) {
-    const { value: char, done } = this.#char.next();
+  /**
+   * Recursively reads the characters of the current line by calling <code><a href="##forward">#forward</a></code>  and either inserts the character directly
+   * or adds the character to the current stack. Once a stack is finalised it will be inserted as a group.
+   *
+   * @alias &num;parse
+   * @function
+   * @memberof Expander
+   * @param {Object} [properties={}]
+   * @param {string} [properties.key=""] properties.key The current character set which represents part of a Syllabist word
+   * @param {Array<string>} [properties.stack=[]] properties.stack The sets of characters which represent the ancestors of the current set of characters
+   * @param {Record<string,string>} [properties.value={}] properties.value The JSON structure to insert the set
+   * @private
+   * @returns {Record<string, string>}
+   */
+  #parse({ key = "", stack = [], value = {} } = {}) {
+    const { value: char, done } = this.#forward.next();
 
     if (done) {
       console.trace("Parsing last character", {
@@ -131,6 +188,7 @@ export class Expander {
       if (key) {
         this.#insert({
           key,
+          stack,
           type: Type.Value,
           value,
         });
@@ -144,6 +202,7 @@ export class Expander {
 
       return this.#parse({
         key,
+        stack,
         value,
       });
     }
@@ -151,77 +210,92 @@ export class Expander {
     switch (char) {
       case Symbol.Combinator: {
         console.trace(
-          `Idefinited character ${char} as ${reverseLookup(Symbol, char)}`,
+          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
         );
 
         const newValue = this.#insert({
           key,
+          stack,
           type: Type.Empty,
           value,
         });
 
-        this.#stack.push(key);
-        console.trace(`Pushed ${key} onto stack ${this.#stack}`);
+        const newStack = stack.concat(key);
+
+        console.trace(`Pushed ${key} onto stack ${newStack}`);
 
         return this.#parse({
+          stack: newStack,
           value: newValue,
         });
       }
       case Symbol.Concatenator: {
         console.trace(
-          `Idefinited character ${char} as ${reverseLookup(Symbol, char)}`,
+          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
         );
 
         const newValue = this.#insert({
           key,
+          stack,
           type: Type.Group,
           value,
         });
 
-        this.#stack.push(key);
-        console.trace(`Pushed ${key} onto stack ${this.#stack}`);
+        const newStack = stack.concat(key);
+
+        console.trace(`Pushed ${key} onto stack ${newStack}`);
 
         return this.#parse({
+          stack: newStack,
           value: newValue,
         });
       }
       case Symbol.GroupEnd: {
         console.trace(
-          `Idefinited character ${char} as ${reverseLookup(Symbol, char)}`,
+          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
         );
 
         const newValue = this.#insert({
           key,
+          stack,
           type: Type.Value,
           value,
         });
 
-        this.#stack.pop();
-        console.trace(`Popped ${key} from stack ${this.#stack}`);
+        const newStack = stack.slice(0, -1);
+
+        console.trace(`Popped ${key} from stack ${newStack}`);
 
         return this.#parse({
+          stack: newStack,
           value: newValue,
         });
       }
       case Symbol.GroupStart: {
         console.trace(
-          `Idefinited character ${char} as ${reverseLookup(Symbol, char)}`,
+          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
         );
 
-        return this.#parse({ key, value });
+        return this.#parse({
+          key,
+          stack,
+          value,
+        });
       }
       case Symbol.Sibling: {
         console.trace(
-          `Idefinited character ${char} as ${reverseLookup(Symbol, char)}`,
+          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
         );
 
         const newValue = this.#insert({
           key,
+          stack,
           type: Type.Value,
           value,
         });
 
         return this.#parse({
+          stack,
           value: newValue,
         });
       }
@@ -230,6 +304,7 @@ export class Expander {
 
         return this.#parse({
           key: `${key}${char}`,
+          stack,
           value,
         });
       }

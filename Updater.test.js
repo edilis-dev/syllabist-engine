@@ -9,7 +9,7 @@ import {
 } from "https://deno.land/std@0.204.0/http/http_status.ts";
 import { FakeTime } from "https://deno.land/std@0.204.0/testing/time.ts";
 
-import { Stubs } from "./Stubs.js";
+import { fetch, readTextFile, remove, writeTextFile } from "./Stubs.js";
 import { Updater } from "./Updater.js";
 
 Deno.test({
@@ -17,11 +17,11 @@ Deno.test({
   fn: async () => {
     const time = new FakeTime(0);
 
-    const fetchMock = Stubs.fetch({ success: { text: "success" } });
-    const readMock = Stubs.readTextFile({
+    const fetchMock = fetch({ success: { text: "success" } });
+    const readMock = readTextFile({
       success: { contents: '{"latest": {}}' },
     });
-    const writeMock = Stubs.writeTextFile({ success: true });
+    const writeMock = writeTextFile({ success: true });
 
     await new Updater().update();
 
@@ -51,18 +51,18 @@ Deno.test({
   fn: async () => {
     const time = new FakeTime("March 1, 1970 00:00:00 UTC");
 
-    const fetchMock = Stubs.fetch({
+    const fetchMock = fetch({
       success: {
         text: "success",
       },
     });
-    const readMock = Stubs.readTextFile({
+    const readMock = readTextFile({
       success: {
         contents:
           '{"latest":{"created":"1970-01-01T00:00:00.000Z","digest":"aee408847d35e44e99430f0979c3357b85fe8dbb4535a494301198adbee85f26"}}',
       },
     });
-    const writeMock = Stubs.writeTextFile({ success: true });
+    const writeMock = writeTextFile({ success: true });
 
     await new Updater().update();
 
@@ -92,19 +92,19 @@ Deno.test({
   fn: async () => {
     const time = new FakeTime("December 1, 1970 00:00:00 UTC");
 
-    const fetchMock = Stubs.fetch({
+    const fetchMock = fetch({
       success: {
         text: "success",
       },
     });
-    const removeMock = Stubs.remove({ success: true });
-    const readMock = Stubs.readTextFile({
+    const removeMock = remove({ success: true });
+    const readMock = readTextFile({
       success: {
         contents:
           '{"latest":{"created":"1970-06-01T00:00:00.000Z","digest":"aee408847d35e44e99430f0979c3357b85fe8dbb4535a494301198adbee85f28"},"aee408847d35e44e99430f0979c3357b85fe8dbb4535a494301198adbee85f26":{"created":"1970-06-01T00:00:00.000Z","obsoleted":"1970-01-01T00:00:00.000Z"}}',
       },
     });
-    const writeMock = Stubs.writeTextFile({ success: true });
+    const writeMock = writeTextFile({ success: true });
 
     await new Updater().update();
 
@@ -133,18 +133,18 @@ Deno.test({
 Deno.test({
   name: "should not save artifact or update manifest if file unchanged",
   fn: async () => {
-    const fetchMock = Stubs.fetch({
+    const fetchMock = fetch({
       success: {
         json: { data: "success" },
       },
     });
-    const readMock = Stubs.readTextFile({
+    const readMock = readTextFile({
       success: {
         contents:
           '{"latest":{"created":"1970-01-01T00:00:00.000Z","digest":"49b5b9c202ff82293960108c8b8eb808dd558103b3cf673e1b644b6bb7e604d6"}}',
       },
     });
-    const writeMock = Stubs.writeTextFile({ success: true });
+    const writeMock = writeTextFile({ success: true });
 
     await new Updater().update();
 
@@ -162,7 +162,7 @@ Deno.test({
 Deno.test({
   name: "should throw a Text error if file fetch failed",
   fn: async () => {
-    const fetchMock = Stubs.fetch({
+    const fetchMock = fetch({
       failure: {
         text: "failure",
       },
@@ -170,7 +170,7 @@ Deno.test({
 
     await assertRejects(
       () => new Updater().update(),
-      Error,
+      TypeError,
       "failure",
     );
 
@@ -184,7 +184,7 @@ Deno.test({
 Deno.test({
   name: "should throw a JSON error if file fetch failed",
   fn: async () => {
-    const fetchMock = Stubs.fetch({
+    const fetchMock = fetch({
       failure: {
         json: {
           error: "failure",
@@ -194,7 +194,7 @@ Deno.test({
 
     const err = await assertRejects(
       () => new Updater().update(),
-      Error,
+      TypeError,
       '{"error":"failure"}',
     );
 
@@ -210,13 +210,13 @@ Deno.test({
 Deno.test({
   name: "should throw statusText if file fetch failed",
   fn: async () => {
-    const fetchMock = Stubs.fetch({
+    const fetchMock = fetch({
       failure: true,
     });
 
     await assertRejects(
       () => new Updater().update(),
-      Error,
+      TypeError,
       STATUS_TEXT[Status.BadRequest],
     );
 
@@ -234,15 +234,15 @@ Deno.test({
 
     const time = new FakeTime("December 1, 1970 00:00:00 UTC");
 
-    const fetchMock = Stubs.fetch({ success: { text: "success" } });
-    const removeMock = Stubs.remove({ failure: true });
-    const readMock = Stubs.readTextFile({
+    const fetchMock = fetch({ success: { text: "success" } });
+    const removeMock = remove({ failure: true });
+    const readMock = readTextFile({
       success: {
         contents:
           '{"latest":{"created":"1970-06-01T00:00:00.000Z","digest":"aee408847d35e44e99430f0979c3357b85fe8dbb4535a494301198adbee85f28"},"aee408847d35e44e99430f0979c3357b85fe8dbb4535a494301198adbee85f26":{"created":"1970-06-01T00:00:00.000Z","obsoleted":"1970-01-01T00:00:00.000Z"}}',
       },
     });
-    const writeMock = Stubs.writeTextFile({ success: true });
+    const writeMock = writeTextFile({ success: true });
 
     await new Updater().update();
 
