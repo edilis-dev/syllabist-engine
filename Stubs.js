@@ -1,8 +1,8 @@
-import { spy, stub } from "https://deno.land/std@0.202.0/testing/mock.ts";
+import { spy, stub } from "https://deno.land/std@0.204.0/testing/mock.ts";
 import {
   Status,
   STATUS_TEXT,
-} from "https://deno.land/std@0.202.0/http/http_status.ts";
+} from "https://deno.land/std@0.204.0/http/http_status.ts";
 
 export const Stubs = {
   /**
