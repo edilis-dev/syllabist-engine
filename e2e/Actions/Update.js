@@ -1,4 +1,4 @@
-import { resolve } from "https://deno.land/std@0.201.0/path/mod.ts";
+import { resolve } from "https://deno.land/std@0.204.0/path/mod.ts";
 
 import { Updater } from "../../Updater.js";
 

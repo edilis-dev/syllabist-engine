@@ -5,7 +5,7 @@ import {
 import {
   assertSpyCalls,
   spy,
-} from "https://deno.land/std@0.201.0/testing/mock.ts";
+} from "https://deno.land/std@0.204.0/testing/mock.ts";
 
 import { Calendar } from "./Calendar.js";
 
