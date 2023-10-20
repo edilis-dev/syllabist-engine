@@ -12,6 +12,8 @@ concurrency:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   Format:
@@ -57,6 +59,35 @@ jobs:
         with:
           # Repository upload token - get it from codecov.io. Required only for private repositories
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  Documentation:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.8.1
+
+      - name: Build documentation
+        run: npx documentation build *.js --format html --output docs --project-name Syllabist-Engine
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3.0.6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2.0.0
+        with:
+          path: 'docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2.0.4
 
   Complete:  
     runs-on: ubuntu-latest

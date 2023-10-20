@@ -40,7 +40,7 @@ Deno.test({
   fn: () => {
     assertThrows(
       () => new Calendar().add(),
-      Error,
+      TypeError,
       "Empty date",
     );
   },
@@ -100,7 +100,7 @@ Deno.test({
         new Calendar(new Date("1970-01-31")).between({
           before: new Date("1970-01-16"),
         }),
-      Error,
+      TypeError,
       "Empty after",
     );
   },
@@ -115,7 +115,7 @@ Deno.test({
         new Calendar(new Date("1970-01-16")).between({
           after: new Date("1970-01-01"),
         }),
-      Error,
+      TypeError,
       "Empty before",
     );
   },
@@ -131,7 +131,7 @@ Deno.test({
           after: new Date("1970-01-01"),
           before: new Date("1970-01-16"),
         }),
-      Error,
+      TypeError,
       "Empty date",
     );
   },
@@ -188,7 +188,7 @@ Deno.test({
   fn: () => {
     assertThrows(
       () => new Calendar(new Date("1970-01-31")).is(),
-      Error,
+      TypeError,
       "Empty before and after",
     );
   },
@@ -200,7 +200,7 @@ Deno.test({
   fn: () => {
     assertThrows(
       () => new Calendar().is(),
-      Error,
+      TypeError,
       "Empty date",
     );
   },
@@ -238,7 +238,7 @@ Deno.test({
   fn: () => {
     assertThrows(
       () => new Calendar().subtract(),
-      Error,
+      TypeError,
       "Empty date",
     );
   },

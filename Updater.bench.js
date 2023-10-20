@@ -1,6 +1,6 @@
 import { FakeTime } from "https://deno.land/std@0.202.0/testing/time.ts";
 
-import { Stubs } from "./Stubs.js";
+import * as Stubs from "./Stubs.js";
 import { Updater } from "./Updater.js";
 
 Deno.bench({

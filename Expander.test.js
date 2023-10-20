@@ -8,7 +8,7 @@ import { Expander } from "./Expander.js";
 Deno.test({
   name: "should throw an error for missing data",
   fn: async () => {
-    await assertRejects(() => new Expander().parse(), Error);
+    await assertRejects(() => new Expander().parse(), TypeError);
   },
   ignore: false,
 });
@@ -22,7 +22,11 @@ Deno.test({
       },
     };
 
-    await assertRejects(() => new Expander(iter).parse(), Error, "Empty line");
+    await assertRejects(
+      () => new Expander(iter).parse(),
+      TypeError,
+      "Empty line",
+    );
   },
   ignore: false,
 });

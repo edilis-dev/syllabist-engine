@@ -8,7 +8,7 @@ import { Transformer } from "./Transformer.js";
 Deno.test({
   name: "should throw an error for missing data",
   fn: async () => {
-    await assertRejects(() => new Transformer().transform(), Error);
+    await assertRejects(() => new Transformer().transform(), TypeError);
   },
   ignore: false,
 });

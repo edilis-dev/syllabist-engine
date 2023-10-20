@@ -4,6 +4,9 @@ import { toHashString } from "https://deno.land/std@0.194.0/crypto/to_hash_strin
 
 import { Calendar } from "./Calendar.js";
 
+/**
+ * The Updater <code>class</code> is responsible for expanding a Syllabist structure into a <code>JSON</code> structure.
+ */
 export class Updater {
   #config = {
     artifacts: null,
@@ -18,11 +21,10 @@ export class Updater {
     "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt";
 
   /**
-   * This function orchestrates the fetching of a plain text file from the `source` property.
+   * @description orchestrates the fetching of a plain text file from the `source` property.
    * Storing of the fetched artifact in the filesystem, archiving the previous version and
    * pruning of any files which have been archived over a configurable period of time ago.
-   *
-   * @param {String} source of a Plain Text file to be retrieved
+   * @param {string} source of a Plain Text file to be retrieved
    */
   async update(source) {
     try {
@@ -81,7 +83,7 @@ export class Updater {
         }`,
       );
 
-      throw new Error(JSON.stringify(json) || text || response.statusText);
+      throw new TypeError(JSON.stringify(json) || text || response.statusText);
     }
   }
 

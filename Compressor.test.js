@@ -12,7 +12,7 @@ Deno.test({
 
     assertThrows(
       () => compressor.parse(),
-      Error,
+      TypeError,
       "Cannot convert undefined or null to object",
     );
   },
