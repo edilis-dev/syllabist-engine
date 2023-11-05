@@ -1,8 +1,8 @@
-import { spy, stub } from "https://deno.land/std@0.204.0/testing/mock.ts";
+import { spy, stub } from "https://deno.land/std@0.205.0/testing/mock.ts";
 import {
   Status,
   STATUS_TEXT,
-} from "https://deno.land/std@0.204.0/http/http_status.ts";
+} from "https://deno.land/std@0.205.0/http/status.ts";
 
 /**
  * @module Stubs
@@ -13,7 +13,7 @@ import {
 /**
  * @property {JSON} [json] JSON response
  * @property {STATUS_TEXT} [statusText] [HTTP Status text]{@link https://deno.land/x/oak@v12.2.0/mod.ts?s=Status}
- * @property {Status} [status] [HTTP Status code]{@link https://deno.land/std@0.204.0/http/mod.ts?s=STATUS_TEXT}
+ * @property {Status} [status] [HTTP Status code]{@link https://deno.land/std@0.205.0/http/mod.ts?s=STATUS_TEXT}
  * @property {string} [text] text response
  * @type {Record}
  * @typedef MockResponse

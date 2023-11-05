@@ -1,6 +1,6 @@
-import "https://deno.land/std@0.204.0/dotenv/load.ts";
-import { encodeHex } from "https://deno.land/std@0.204.0/encoding/hex.ts";
-import { resolve } from "https://deno.land/std@0.204.0/path/mod.ts";
+import "https://deno.land/std@0.205.0/dotenv/load.ts";
+import { encodeHex } from "https://deno.land/std@0.205.0/encoding/hex.ts";
+import { resolve } from "https://deno.land/std@0.205.0/path/mod.ts";
 
 import { Calendar } from "./Calendar.js";
 

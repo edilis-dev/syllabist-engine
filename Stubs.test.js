@@ -1,13 +1,13 @@
 import {
   Status,
   STATUS_TEXT,
-} from "https://deno.land/std@0.204.0/http/http_status.ts";
+} from "https://deno.land/std@0.205.0/http/status.ts";
 import {
   assertEquals,
   assertInstanceOf,
   assertObjectMatch,
   assertRejects,
-} from "https://deno.land/std@0.204.0/testing/asserts.ts";
+} from "https://deno.land/std@0.205.0/assert/mod.ts";
 
 import * as Stubs from "./Stubs.js";
 
