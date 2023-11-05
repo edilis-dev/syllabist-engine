@@ -1,5 +1,6 @@
 /**
  * @module Helpers
+ * @public
  */
 
 /**
@@ -7,6 +8,7 @@
  *
  * @param {Record<string, unknown>} object <code>Record</code> which may contain the value.
  * @param {string} target Value of the key.
+ * @public
  * @returns {string | null} Key name.
  */
 export function ReverseLookup(object, target) {

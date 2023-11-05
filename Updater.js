@@ -74,9 +74,16 @@ export class Updater {
     "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt";
 
   /**
+   * @public
+   */
+  constructor() {}
+
+  /**
    * Fetches the file from the source. Compares the contents and updates manifest, if necessary. Then purges obsolete content.
    *
+   * @async
    * @param {string} source Absolute URL of text file to be retrieved
+   * @public
    * @returns {Promise<void>}
    */
   async update(source) {
@@ -113,6 +120,7 @@ export class Updater {
    * Fetches the file from the source.
    *
    * @alias &num;fetch
+   * @async
    * @memberof Updater
    * @param {string} [source=this.#source] Absolute URL of text file to be retrieved
    * @private
@@ -155,6 +163,7 @@ export class Updater {
    * Hashes the contents of the retrieved file.
    *
    * @alias &num;hash
+   * @async
    * @memberof Updater
    * @private
    * @returns {Promise<void>}
@@ -173,6 +182,7 @@ export class Updater {
    * Removes obsolete content files from the filesystem and the manifest file. The determination if a file is obsolete is configured by the configuration lifetime.
    *
    * @alias &num;prune
+   * @async
    * @memberof Updater
    * @private
    * @returns {Promise<void>}
@@ -247,6 +257,7 @@ export class Updater {
    * Reads the contents of the manifest file from the file system.
    *
    * @alias &num;read
+   * @async
    * @memberof Updater
    * @private
    * @returns {Promise<void>}
@@ -265,6 +276,7 @@ export class Updater {
    * Updates the contents of the manifest file and writes the update file to the file system.
    *
    * @alias &num;update
+   * @async
    * @memberof Updater
    * @private
    * @returns {Promise<void>}
@@ -320,6 +332,7 @@ export class Updater {
    * Writes the contents of the retrieved file to the file system.
    *
    * @alias &num;write
+   * @async
    * @memberof Updater
    * @private
    * @returns {Promise<void>}
