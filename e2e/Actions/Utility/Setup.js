@@ -1,4 +1,4 @@
-import { FakeTime } from "https://deno.land/std@0.204.0/testing/time.ts";
+import { FakeTime } from "https://deno.land/std@0.205.0/testing/time.ts";
 
 export const Setup = async () => {
   try {
