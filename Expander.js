@@ -27,6 +27,7 @@ export class Expander {
 
   /**
    * @param {AsyncIterableIterator<string>} iter A collection of Syllabist words.
+   * @public
    */
   constructor(iter) {
     console.info("Constructing new instance");
@@ -39,8 +40,8 @@ export class Expander {
    * depth-first search represent a complete word.
    *
    * @async
+   * @public
    * @returns {Promise<Record<string, string>>} Resolves with the expanded Syllabist structure.
-   * @throws {TypeError} If <a href="#*iterator"><code>*iterator</code></a> returns an empty line.
    */
   async parse() {
     console.info("Starting parse");
@@ -69,7 +70,7 @@ export class Expander {
   }
 
   /**
-   * Iterates through a given <code>string</code> a character at a time.
+   * Iterates through a <code>string</code> a character at a time.
    *
    * @alias &ast;iterator
    * @memberof Expander
@@ -77,6 +78,7 @@ export class Expander {
    * @private
    * @param {string} line The current line being expanded.
    * @returns {Generator<string, void, void>}
+   * @throws {TypeError} If line is empty.
    * @yields {string}
    */
   *iterator(line) {

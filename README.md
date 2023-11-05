@@ -8,6 +8,7 @@ Syllabist Engine will provider the underlying logic for the
 In it's first iteration Syllabist Engine will have the following features:
 
 - Utility:
+
   - Sourcing Plain Text word files.
   - Syllabifying Plain Text word files into a separated Plain Text.
   - Transforming the separated Plain Text files into JSON format.

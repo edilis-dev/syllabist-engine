@@ -2,6 +2,7 @@ import { Standard } from "./Constants.js";
 
 /**
  * @module Format
+ * @public
  */
 
 /**
@@ -10,6 +11,7 @@ import { Standard } from "./Constants.js";
  * @param {Object} properties
  * @param {string} properties.data Data to be formatted
  * @param {string} [properties.type=JSON] Type identifier
+ * @public
  * @returns {string} The formatted input data.
  * @throws {TypeError} If data is mising or type is unrecognised.
  */

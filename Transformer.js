@@ -17,6 +17,7 @@ export class Transformer {
 
   /**
    * @param {AsyncIterableIterator<string>} iter A collection of words split by a common separator character.
+   * @public
    */
   constructor(iter) {
     console.info("Constructing new instance");
@@ -30,6 +31,7 @@ export class Transformer {
    *
    * @async
    * @param {string} [separator=;] Common separator character
+   * @public
    * @returns {Promise<Record<string, string>>} Resolves with the expanded Syllabist structure.
    */
   async transform(separator = ";") {
