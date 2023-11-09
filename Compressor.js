@@ -42,12 +42,12 @@ export class Compressor {
       if (typeof this.#data[key] === "object") {
         value = [
           ...value,
-          this.#object({ key, value: this.#data }).join("")
-        ]
+          this.#object({ key, value: this.#data }).join(""),
+        ];
       } else {
         value = [
           ...value,
-          this.#string({ key, value: this.#data }).join("")
+          this.#string({ key, value: this.#data }).join(""),
         ];
       }
     }
