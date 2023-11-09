@@ -16,27 +16,6 @@ export class Compressor {
   #data;
 
   /**
-   * <code>Array</code> which contains all <code>string</code>s of text. Each <code>string</code> is an instance of a <a href="##stack"><code>#stack</code></a>
-   * which represents both a Syllabist word and a path through the <code>JSON</code> structure.
-   *
-   * @alias &num;lines
-   * @memberof Compressor
-   * @private
-   * @type {Array<string>}
-   */
-  #lines;
-
-  /**
-   * <code>Array</code> which contains a Syllabist word consisting of individual <code>string</code>s of syllables or [Symbols]{@linkcode module:Constants.Symbol}.
-   *
-   * @alias &num;stack
-   * @memberof Compressor
-   * @private
-   * @type {Array<string>}
-   */
-  #stack;
-
-  /**
    * @param {JSON} data Data to be compressed
    * @public
    */
@@ -55,26 +34,28 @@ export class Compressor {
   parse() {
     console.info("Starting parse");
 
-    this.#lines = [];
+    let value = [];
 
     for (const key in this.#data) {
       console.trace(`Found key ${key} in ${JSON.stringify(this.#data)}`);
 
-      this.#stack = [];
-
       if (typeof this.#data[key] === "object") {
-        this.#object({ key, value: this.#data });
+        value = [
+          ...value,
+          this.#object({ key, value: this.#data }).join("")
+        ]
       } else {
-        this.#string({ key, value: this.#data });
+        value = [
+          ...value,
+          this.#string({ key, value: this.#data }).join("")
+        ];
       }
-
-      this.#lines = [...this.#lines, this.#stack.join("")];
     }
 
     console.info("Parse finished");
-    console.trace(`Parse result ${JSON.stringify(this.#lines)}`);
+    console.trace(`Parse result ${JSON.stringify(value)}`);
 
-    return this.#lines.join("\n");
+    return value.join("\n");
   }
 
   /**
@@ -152,7 +133,7 @@ export class Compressor {
    * @private
    * @see [Symbols]{@linkcode module:Constants.Symbol}
    */
-  #object({ key, value }) {
+  #object({ key, stack = [], value }) {
     if (this.#isCombinator({ value: value[key] })) {
       console.trace(
         `Identified relationship for key ${key} as ${
@@ -162,14 +143,14 @@ export class Compressor {
           )
         }`,
       );
-      this.#stack.push(key, Symbol.Combinator);
+      stack.push(key, Symbol.Combinator);
 
       console.trace(`Starting group of ${key}`);
-      this.#stack.push(Symbol.GroupStart);
+      stack.push(Symbol.GroupStart);
       console.trace(`Starting parse of ${key}`);
-      this.#parse({ value: value[key] });
+      this.#parse({ stack, value: value[key] });
       console.trace(`Finished parse of ${key}`);
-      this.#stack.push(Symbol.GroupEnd);
+      stack.push(Symbol.GroupEnd);
       console.trace(`Finished group of ${key}`);
     } else if (this.#isConcatenator({ value: value[key] })) {
       console.trace(
@@ -180,17 +161,19 @@ export class Compressor {
           )
         }`,
       );
-      this.#stack.push(key, Symbol.Concatenator);
+      stack.push(key, Symbol.Concatenator);
 
       console.trace(`Starting group of ${key}`);
-      this.#stack.push(Symbol.GroupStart);
+      stack.push(Symbol.GroupStart);
       console.trace(`Starting parse of ${key}`);
-      this.#parse({ value: value[key] });
+      this.#parse({ stack, value: value[key] });
       console.trace(`Finished parse of ${key}`);
-      this.#stack.push(Symbol.GroupEnd);
+      stack.push(Symbol.GroupEnd);
     } else {
       console.trace(`Failed to identify relationship for key ${key}`);
     }
+
+    return stack;
   }
 
   /**
@@ -203,16 +186,16 @@ export class Compressor {
    * @param {Record<string, unknown>} target.value Record to parse
    * @private
    */
-  #parse({ value }) {
+  #parse({ stack = [], value }) {
     for (const key in value) {
       console.trace(`Starting iteration with key ${key}`);
 
       if (typeof value[key] === "object") {
         console.trace(`Identified ${key} as object`);
-        this.#object({ key, value });
+        this.#object({ key, stack, value });
       } else if (typeof value[key] === "string") {
         console.trace(`Identified ${key} as string`);
-        this.#string({ key, value });
+        this.#string({ key, stack, value });
       } else {
         console.warn(
           `Identified ${key} as unparseable type ${typeof value[key]}`,
@@ -222,9 +205,11 @@ export class Compressor {
 
       if (key && this.#isSibling({ value }) && !this.#isLast({ key, value })) {
         console.trace(`Identified ${key} as a sibling not in last place `);
-        this.#stack.push(Symbol.Sibling);
+        stack.push(Symbol.Sibling);
       }
     }
+
+    return stack;
   }
 
   /**
@@ -237,7 +222,9 @@ export class Compressor {
    * @param {Record<string, unknown>} target.key Key to insert
    * @private
    */
-  #string({ key }) {
-    this.#stack.push(key);
+  #string({ stack = [], key }) {
+    stack.push(key);
+
+    return stack;
   }
 }
