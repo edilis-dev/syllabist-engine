@@ -1,6 +1,6 @@
 name: Syllabist Engine (Pull Request)
 
-on:    
+on:
   pull_request:
     branches: ["*"]
 
@@ -12,7 +12,6 @@ permissions:
   contents: read
 
 jobs:
-
   Documentation:
     runs-on: ubuntu-latest
 
@@ -25,16 +24,16 @@ jobs:
 
       - name: Build documentation
         run: npx jsdoc *.js --access all --destination docs
-        
+
   Format:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
 
       - name: Setup Deno
-        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31  # v1.1.2
+        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
         with:
           deno-version: v1.x
 
@@ -70,7 +69,7 @@ jobs:
           # Repository upload token - get it from codecov.io. Required only for private repositories
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  Complete:  
+  Complete:
     runs-on: ubuntu-latest
 
     steps:
@@ -87,52 +86,52 @@ jobs:
           cd e2e
           deno run --allow-all Workflows/Complete.js
 
-  Compress-Expand:  
+  Compress-Expand:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-    
+
       - name: Setup Deno
         uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31
         with:
           deno-version: v1.x
-    
+
       - name: Run Complete Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Compress-Expand.js
 
-  Transform-Compress:  
+  Transform-Compress:
     runs-on: ubuntu-latest
-        
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-        
+
       - name: Setup Deno
         uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31
         with:
           deno-version: v1.x
-        
+
       - name: Run Complete Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Transform-Compress.js
 
-  Update-Separate:  
+  Update-Separate:
     runs-on: ubuntu-latest
-            
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-            
+
       - name: Setup Deno
         uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31
         with:
           deno-version: v1.x
-            
+
       - name: Run Complete Workflow
         run: |
           cd e2e

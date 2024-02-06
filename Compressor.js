@@ -128,9 +128,11 @@ export class Compressor {
    * @function
    * @memberof Compressor
    * @param {Record<"key" | "value", unknown>} target
-   * @param {Record<string, unknown>} target.value Record to inspect
    * @param {string} target.key Key to compare with last position
+   * @param {Array<string>} [target.stack=[]] List of syllables and [Symbols]{@linkcode module:Constants.Symbol}.
+   * @param {Record<string, unknown>} target.value Record to inspect
    * @private
+   * @returns {Array<string>}
    * @see [Symbols]{@linkcode module:Constants.Symbol}
    */
   #object({ key, stack = [], value }) {
@@ -183,8 +185,10 @@ export class Compressor {
    * @function
    * @memberof Compressor
    * @param {Record<"value", unknown>} target
+   * @param {Array<string>} [target.stack=[]] List of syllables and [Symbols]{@linkcode module:Constants.Symbol}.
    * @param {Record<string, unknown>} target.value Record to parse
    * @private
+   * @returns {Array<string>}
    */
   #parse({ stack = [], value }) {
     for (const key in value) {
@@ -220,9 +224,11 @@ export class Compressor {
    * @memberof Compressor
    * @param {Record<"key", string>} target
    * @param {Record<string, unknown>} target.key Key to insert
+   * @param {Array<string>} [target.stack=[]] List of syllables and [Symbols]{@linkcode module:Constants.Symbol}.
    * @private
+   * @returns {Array<string>}
    */
-  #string({ stack = [], key }) {
+  #string({ key, stack = [] }) {
     stack.push(key);
 
     return stack;

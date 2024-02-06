@@ -5,7 +5,7 @@ Deno.bench({
   name: "should Standardise JSON",
   fn: () => {
     Standardise({
-      data: '{"a":{"ble":"ble","bout":"bout"\}}',
+      data: '{"a":{"ble":"ble","bout":"bout"}}',
     });
   },
 });
