@@ -27,7 +27,7 @@ Deno.test({
     assertThrows(
       () =>
         Standardise({
-          data: '{"a":{"ble":"ble","bout":"bout"\}}',
+          data: '{"a":{"ble":"ble","bout":"bout"}}',
           type: null,
         }),
       TypeError,
@@ -41,7 +41,7 @@ Deno.test({
   name: "should Standardise JSON",
   fn: () => {
     const actual = Standardise({
-      data: '{"a":{"ble":"ble","bout":"bout"\}}',
+      data: '{"a":{"ble":"ble","bout":"bout"}}',
     });
 
     const expected = {
