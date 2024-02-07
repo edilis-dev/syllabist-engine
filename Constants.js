@@ -1,27 +1,9 @@
-/**
- * @module Constants
- * @public
- */
-
-/**
- * Key identification types.
- *
- * @public
- * @see <a href="Expander.html##insert"><code>Expander#insert</code></a>
- */
 export const Type = Object.freeze({
-  Group: "group",
   Empty: "empty",
+  Group: "group",
   Value: "value",
 });
 
-/**
- * Group identification symbols.
- *
- * @public
- * @see <a href="Compressor.html##object"><code>Compressor#object</code></a>
- * @see <a href="Expander.html##parse"><code>Expander#parse</code></a>
- */
 export const Symbol = Object.freeze({
   Combinator: "~",
   Concatenator: ">",
@@ -30,21 +12,9 @@ export const Symbol = Object.freeze({
   Sibling: "|",
 });
 
-/**
- * Supported standardisation formats.
- *
- * @public
- * @see [Format#Standardise]{@linkcode module:Format.Standardise}
- */
-export const Standard = {
+export const Standard = Object.freeze({
   JSON: "json",
   Text: "text",
-};
+});
 
-/**
- * Valid character set, including alphabetical characters, hyphens and [Symbols]{@linkcode module:Constants.Symbol}.
- *
- * @public
- * @see <a href="Expander.html##parse"><code>Expander#parse</code></a>
- */
 export const Charset = new RegExp(`[${Object.values(Symbol).join("\\")}a-z-]`);

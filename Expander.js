@@ -1,48 +1,16 @@
 import { Charset, Symbol, Type } from "./Constants.js";
 import { ReverseLookup } from "./Helpers.js";
 
-/**
- * The Expander <code>class</code> is responsible for expanding a Syllabist structure into a <code>JSON</code> structure.
- */
 export class Expander {
-  /**
-   * <code>Iterator</code> which returns a character at a time from the current line.
-   *
-   * @alias &num;forward
-   * @memberof Expander
-   * @private
-   * @type {Iterator<string>}
-   */
   #forward;
-
-  /**
-   * <code>AsyncIterableIterator</code> which returns a line of text representing a single Syllabist word.
-   *
-   * @alias &num;lines
-   * @memberof Expander
-   * @private
-   * @type {AsyncIterableIterator<string>}
-   */
   #lines;
 
-  /**
-   * @param {AsyncIterableIterator<string>} iter A collection of Syllabist words.
-   * @public
-   */
   constructor(iter) {
     console.info("Constructing new instance");
 
     this.#lines = iter;
   }
 
-  /**
-   * Iterates through all the lines of text provided by <code><a href="##lines">#lines</a></code>. Creates a new JSON object containing nested syllables which when traversed in a
-   * depth-first search represent a complete word.
-   *
-   * @async
-   * @public
-   * @returns {Promise<Record<string, string>>} Resolves with the expanded Syllabist structure.
-   */
   async parse() {
     console.info("Starting parse");
 
@@ -69,18 +37,6 @@ export class Expander {
     }
   }
 
-  /**
-   * Iterates through a <code>string</code> a character at a time.
-   *
-   * @alias &ast;iterator
-   * @memberof Expander
-   * @generator
-   * @private
-   * @param {string} line The current line being expanded.
-   * @returns {Generator<string, void, void>}
-   * @throws {TypeError} If line is empty.
-   * @yields {string}
-   */
   *iterator(line) {
     let counter = 0;
 
@@ -96,40 +52,20 @@ export class Expander {
     }
   }
 
-  /**
-   * Inserts key into value, the depth at which the current value is inserted is determined by the stack and the type of value to be inserted is
-   * determined by type.
-   *
-   * @alias &num;insert
-   * @function
-   * @memberof Expander
-   * @param {Object} [properties={}]
-   * @param {string} properties.key The current character set which represents part of a Syllabist word
-   * @param {Array<string>} properties.stack The sets of characters which represent the ancestors of the current set of characters
-   * @param {string} properties.type The type of value to be inserted into the JSON structure
-   * @param {Record<string, string>} properties.value The JSON structure to insert the set
-   * @private
-   * @returns {Record<string, string>}
-   * @see [Expander#Type]{@linkcode module:Constants.Type}
-   */
   #insert({ key, stack, type, value }) {
     if (!key) {
       console.trace(
-        `Inserting ${type.toUpperCase()} without key into ${
-          JSON.stringify(
-            value,
-          )
-        }`,
+        `Inserting ${type.toUpperCase()} without key into ${JSON.stringify(
+          value,
+        )}`,
       );
 
       return value;
     } else {
       console.trace(
-        `Inserting ${type.toUpperCase()} with key "${key}" into ${
-          JSON.stringify(
-            value,
-          )
-        }`,
+        `Inserting ${type.toUpperCase()} with key "${key}" into ${JSON.stringify(
+          value,
+        )}`,
       );
     }
 
@@ -165,20 +101,6 @@ export class Expander {
     }
   }
 
-  /**
-   * Recursively reads the characters of the current line by calling <code><a href="##forward">#forward</a></code>  and either inserts the character directly
-   * or adds the character to the current stack. Once a stack is finalised it will be inserted as a group.
-   *
-   * @alias &num;parse
-   * @function
-   * @memberof Expander
-   * @param {Object} [properties={}]
-   * @param {string} [properties.key=""] properties.key The current character set which represents part of a Syllabist word
-   * @param {Array<string>} [properties.stack=[]] properties.stack The sets of characters which represent the ancestors of the current set of characters
-   * @param {Record<string,string>} [properties.value={}] properties.value The JSON structure to insert the set
-   * @private
-   * @returns {Record<string, string>}
-   */
   #parse({ key = "", stack = [], value = {} } = {}) {
     const { value: char, done } = this.#forward.next();
 
