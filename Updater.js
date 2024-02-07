@@ -95,10 +95,9 @@ export class Updater {
     const path = resolve(this.#config.artifacts, this.#config.manifest);
     console.trace(`Pruning manifest at ${path}`);
     const end = timestamp.subtract({
-      days:
-        typeof this.#config.lifetime === "number"
-          ? this.#config.lifetime
-          : parseInt(this.#config.lifetime),
+      days: typeof this.#config.lifetime === "number"
+        ? this.#config.lifetime
+        : parseInt(this.#config.lifetime),
     });
     console.info(`End date for obsolete files ${end}`);
 
@@ -195,13 +194,13 @@ export class Updater {
 
     this.#manifest = previous.digest
       ? {
-          latest,
-          [previous.digest]: {
-            created: previous.created,
-            obsoleted: timestamp,
-          },
-          ...existing,
-        }
+        latest,
+        [previous.digest]: {
+          created: previous.created,
+          obsoleted: timestamp,
+        },
+        ...existing,
+      }
       : { latest };
     console.trace(
       `Created new manifest contents ${JSON.stringify(this.#manifest)}`,

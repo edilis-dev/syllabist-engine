@@ -55,17 +55,21 @@ export class Expander {
   #insert({ key, stack, type, value }) {
     if (!key) {
       console.trace(
-        `Inserting ${type.toUpperCase()} without key into ${JSON.stringify(
-          value,
-        )}`,
+        `Inserting ${type.toUpperCase()} without key into ${
+          JSON.stringify(
+            value,
+          )
+        }`,
       );
 
       return value;
     } else {
       console.trace(
-        `Inserting ${type.toUpperCase()} with key "${key}" into ${JSON.stringify(
-          value,
-        )}`,
+        `Inserting ${type.toUpperCase()} with key "${key}" into ${
+          JSON.stringify(
+            value,
+          )
+        }`,
       );
     }
 
