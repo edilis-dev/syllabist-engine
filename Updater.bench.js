@@ -1,4 +1,4 @@
-import { FakeTime } from "https://deno.land/std@0.205.0/testing/time.ts";
+import { FakeTime } from "@std/testing/time";
 
 import * as Stubs from "./Stubs.js";
 import { Updater } from "./Updater.js";

@@ -1,13 +1,10 @@
-import {
-  Status,
-  STATUS_TEXT,
-} from "https://deno.land/std@0.205.0/http/status.ts";
+import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
 import {
   assertEquals,
   assertInstanceOf,
   assertObjectMatch,
   assertRejects,
-} from "https://deno.land/std@0.205.0/assert/mod.ts";
+} from "@std/assert";
 
 import * as Stubs from "./Stubs.js";
 
@@ -15,11 +12,11 @@ Deno.test({
   name: "fetch stub should return success",
   fn: async () => {
     const expected = {
-      status: Status.OK,
-      statusText: STATUS_TEXT[Status.OK],
+      status: STATUS_CODE.OK,
+      statusText: STATUS_TEXT[STATUS_CODE.OK],
     };
 
-    const stub = await Stubs.fetch({ success: true });
+    const stub = Stubs.fetch({ success: true });
 
     const response = await stub();
 
@@ -41,11 +38,11 @@ Deno.test({
       json: {
         data: "success",
       },
-      status: Status.OK,
-      statusText: STATUS_TEXT[Status.OK],
+      status: STATUS_CODE.OK,
+      statusText: STATUS_TEXT[STATUS_CODE.OK],
     };
 
-    const stub = await Stubs.fetch({
+    const stub = Stubs.fetch({
       success: {
         json: expected.json,
       },
@@ -74,8 +71,8 @@ Deno.test({
       json: {
         data: "success",
       },
-      status: Status.Accepted,
-      statusText: STATUS_TEXT[Status.Accepted],
+      status: STATUS_CODE.Accepted,
+      statusText: STATUS_TEXT[STATUS_CODE.Accepted],
     };
 
     const stub = await Stubs.fetch({ success: expected });
@@ -100,8 +97,8 @@ Deno.test({
   name: "fetch stub should return success Text",
   fn: async () => {
     const expected = {
-      status: Status.OK,
-      statusText: STATUS_TEXT[Status.OK],
+      status: STATUS_CODE.OK,
+      statusText: STATUS_TEXT[STATUS_CODE.OK],
       text: "success",
     };
 
@@ -131,8 +128,8 @@ Deno.test({
   name: "fetch stub should return success Text and status",
   fn: async () => {
     const expected = {
-      status: Status.Accepted,
-      statusText: STATUS_TEXT[Status.Accepted],
+      status: STATUS_CODE.Accepted,
+      statusText: STATUS_TEXT[STATUS_CODE.Accepted],
       text: "success",
     };
 
@@ -158,8 +155,8 @@ Deno.test({
   name: "fetch stub should return failure",
   fn: async () => {
     const expected = {
-      status: Status.BadRequest,
-      statusText: STATUS_TEXT[Status.BadRequest],
+      status: STATUS_CODE.BadRequest,
+      statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
     };
 
     const stub = await Stubs.fetch({ failure: true });
@@ -184,8 +181,8 @@ Deno.test({
       json: {
         error: "failure",
       },
-      status: Status.BadRequest,
-      statusText: STATUS_TEXT[Status.BadRequest],
+      status: STATUS_CODE.BadRequest,
+      statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
     };
 
     const stub = await Stubs.fetch({
@@ -217,8 +214,8 @@ Deno.test({
       json: {
         error: "failure",
       },
-      status: Status.InternalServerError,
-      statusText: STATUS_TEXT[Status.InternalServerError],
+      status: STATUS_CODE.InternalServerError,
+      statusText: STATUS_TEXT[STATUS_CODE.InternalServerError],
     };
 
     const stub = await Stubs.fetch({ failure: expected });
@@ -244,8 +241,8 @@ Deno.test({
   fn: async () => {
     const expected = {
       text: "failure",
-      status: Status.BadRequest,
-      statusText: STATUS_TEXT[Status.BadRequest],
+      status: STATUS_CODE.BadRequest,
+      statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
     };
 
     const stub = await Stubs.fetch({
@@ -275,8 +272,8 @@ Deno.test({
   fn: async () => {
     const expected = {
       text: "failure",
-      status: Status.InternalServerError,
-      statusText: STATUS_TEXT[Status.InternalServerError],
+      status: STATUS_CODE.InternalServerError,
+      statusText: STATUS_TEXT[STATUS_CODE.InternalServerError],
     };
 
     const stub = await Stubs.fetch({ failure: expected });
@@ -350,11 +347,7 @@ Deno.test({
   fn: async () => {
     const stub = await Stubs.readTextFile({ failure: true });
 
-    await assertRejects(
-      () => stub(),
-      Error,
-      "failure",
-    );
+    await assertRejects(() => stub(), Error, "failure");
 
     stub.restore();
   },
@@ -370,11 +363,7 @@ Deno.test({
       },
     });
 
-    await assertRejects(
-      () => stub(),
-      Error,
-      "failed",
-    );
+    await assertRejects(() => stub(), Error, "failed");
 
     stub.restore();
   },
@@ -434,11 +423,7 @@ Deno.test({
   fn: async () => {
     const stub = await Stubs.remove({ failure: true });
 
-    await assertRejects(
-      () => stub(),
-      Error,
-      "failure",
-    );
+    await assertRejects(() => stub(), Error, "failure");
 
     stub.restore();
   },
@@ -454,11 +439,7 @@ Deno.test({
       },
     });
 
-    await assertRejects(
-      () => stub(),
-      Error,
-      "failed",
-    );
+    await assertRejects(() => stub(), Error, "failed");
 
     stub.restore();
   },
@@ -518,11 +499,7 @@ Deno.test({
   fn: async () => {
     const stub = await Stubs.writeTextFile({ failure: true });
 
-    await assertRejects(
-      () => stub(),
-      Error,
-      "failure",
-    );
+    await assertRejects(() => stub(), Error, "failure");
 
     stub.restore();
   },
@@ -538,11 +515,7 @@ Deno.test({
       },
     });
 
-    await assertRejects(
-      () => stub(),
-      Error,
-      "failed",
-    );
+    await assertRejects(() => stub(), Error, "failed");
 
     stub.restore();
   },
