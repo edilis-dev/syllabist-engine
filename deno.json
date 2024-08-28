@@ -13,6 +13,5 @@
   },
   "lock": {
     "frozen": true
-  },
-  "unstable": ["fmt-yaml"]
+  }
 }
