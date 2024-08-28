@@ -1,8 +1,5 @@
-import { spy, stub } from "https://deno.land/std@0.205.0/testing/mock.ts";
-import {
-  Status,
-  STATUS_TEXT,
-} from "https://deno.land/std@0.205.0/http/status.ts";
+import { spy, stub } from "@std/testing/mock";
+import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
 
 export function fetch({ success, failure } = {}) {
   if (success) {
@@ -10,12 +7,12 @@ export function fetch({ success, failure } = {}) {
       Promise.resolve(
         success.json
           ? Response.json(success.json, {
-            status: success.status ?? Status.OK,
-            statusText: success.statusText ?? STATUS_TEXT[Status.OK],
+            status: success.status ?? STATUS_CODE.OK,
+            statusText: success.statusText ?? STATUS_TEXT[STATUS_CODE.OK],
           })
           : new Response(success.text, {
-            status: success.status ?? Status.OK,
-            statusText: success.statusText ?? STATUS_TEXT[Status.OK],
+            status: success.status ?? STATUS_CODE.OK,
+            statusText: success.statusText ?? STATUS_TEXT[STATUS_CODE.OK],
           }),
       ));
   } else if (failure) {
@@ -23,12 +20,14 @@ export function fetch({ success, failure } = {}) {
       Promise.resolve(
         failure.json
           ? Response.json(failure.json, {
-            status: failure.status ?? Status.BadRequest,
-            statusText: failure.statusText ?? STATUS_TEXT[Status.BadRequest],
+            status: failure.status ?? STATUS_CODE.BadRequest,
+            statusText: failure.statusText ??
+              STATUS_TEXT[STATUS_CODE.BadRequest],
           })
           : new Response(failure.text, {
-            status: failure.status ?? Status.BadRequest,
-            statusText: failure.statusText ?? STATUS_TEXT[Status.BadRequest],
+            status: failure.status ?? STATUS_CODE.BadRequest,
+            statusText: failure.statusText ??
+              STATUS_TEXT[STATUS_CODE.BadRequest],
           }),
       ));
   } else {

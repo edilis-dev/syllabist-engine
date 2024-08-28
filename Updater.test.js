@@ -1,13 +1,7 @@
-import { assertRejects } from "https://deno.land/std@0.205.0/assert/mod.ts";
-import {
-  assertSpyCallArgs,
-  assertSpyCalls,
-} from "https://deno.land/std@0.205.0/testing/mock.ts";
-import {
-  Status,
-  STATUS_TEXT,
-} from "https://deno.land/std@0.205.0/http/status.ts";
-import { FakeTime } from "https://deno.land/std@0.205.0/testing/time.ts";
+import { assertRejects } from "@std/assert";
+import { assertSpyCallArgs, assertSpyCalls } from "@std/testing/mock";
+import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
+import { FakeTime } from "@std/testing/time";
 
 import { fetch, readTextFile, remove, writeTextFile } from "./Stubs.js";
 import { Updater } from "./Updater.js";
@@ -168,11 +162,7 @@ Deno.test({
       },
     });
 
-    await assertRejects(
-      () => new Updater().update(),
-      TypeError,
-      "failure",
-    );
+    await assertRejects(() => new Updater().update(), TypeError, "failure");
 
     assertSpyCalls(fetchMock, 1);
 
@@ -217,7 +207,7 @@ Deno.test({
     await assertRejects(
       () => new Updater().update(),
       TypeError,
-      STATUS_TEXT[Status.BadRequest],
+      STATUS_TEXT[STATUS_CODE.BadRequest],
     );
 
     assertSpyCalls(fetchMock, 1);

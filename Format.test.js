@@ -1,7 +1,4 @@
-import {
-  assert,
-  assertThrows,
-} from "https://deno.land/std@0.205.0/assert/mod.ts";
+import { assert, assertThrows } from "@std/assert";
 
 import { Standardise } from "./Format.js";
 import { Standard } from "./Constants.js";

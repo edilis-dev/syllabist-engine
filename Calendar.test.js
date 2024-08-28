@@ -1,11 +1,5 @@
-import {
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.205.0/assert/mod.ts";
-import {
-  assertSpyCalls,
-  spy,
-} from "https://deno.land/std@0.205.0/testing/mock.ts";
+import { assertEquals, assertThrows } from "@std/assert";
+import { assertSpyCalls, spy } from "@std/testing/mock";
 
 import { Calendar } from "./Calendar.js";
 

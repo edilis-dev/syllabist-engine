@@ -1,4 +1,4 @@
-import { readLines } from "https://deno.land/std@0.205.0/io/mod.ts";
+import { readLines } from "@std/io";
 
 import { Expander } from "../../Expander.js";
 

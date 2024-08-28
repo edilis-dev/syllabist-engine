@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  assertRejects,
-} from "https://deno.land/std@0.205.0/assert/mod.ts";
+import { assertEquals, assertRejects } from "@std/assert";
 
 import { Transformer } from "./Transformer.js";
 
