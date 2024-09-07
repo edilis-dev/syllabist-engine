@@ -1,4 +1,5 @@
 import "@std/dotenv/load";
+import * as log from "@std/log";
 import { encodeHex } from "@std/encoding/hex";
 import { resolve } from "@std/path";
 
@@ -33,9 +34,9 @@ export class Updater {
       await this.#read();
 
       if (this.#digest === this.#manifest.latest.digest) {
-        console.info("Source is unchanged");
+        log.info("Source is unchanged");
       } else {
-        console.info("Source changed");
+        log.info("Source changed");
 
         await this.#write();
         await this.#update();
@@ -43,20 +44,20 @@ export class Updater {
 
       await this.#prune();
     } catch (error) {
-      console.error(error);
+      log.error(error);
 
       throw error;
     }
   }
 
   async #fetch(source = this.#source) {
-    console.info("Starting fetch");
-    console.trace(`Source ${source}`);
+    log.info("Starting fetch");
+    log.debug(`Source ${source}`);
     const response = await fetch(source);
 
     if (response.ok) {
       this.#data = await response.text();
-      console.trace("Finished fetch");
+      log.debug("Finished fetch");
     } else {
       const json = await response
         .clone()
@@ -70,7 +71,7 @@ export class Updater {
         .then((text) => text)
         .catch(() => undefined);
 
-      console.error(
+      log.error(
         `Fetch failed with reason: ${
           JSON.stringify(json) || text || response.statusText
         }`,
@@ -81,28 +82,28 @@ export class Updater {
   }
 
   async #hash() {
-    console.info("Digesting file");
+    log.info("Digesting file");
     const encoder = new TextEncoder().encode(this.#data);
     const buffer = await crypto.subtle.digest("SHA-256", encoder);
     this.#digest = encodeHex(buffer);
-    console.trace(`Calculated digest ${this.#digest}`);
-    console.info("Finished digesting file");
+    log.debug(`Calculated digest ${this.#digest}`);
+    log.info("Finished digesting file");
   }
 
   async #prune() {
-    console.info("Pruning manifest");
+    log.info("Pruning manifest");
     const timestamp = new Calendar(new Date(Date.now()));
     const path = resolve(this.#config.artifacts, this.#config.manifest);
-    console.trace(`Pruning manifest at ${path}`);
+    log.debug(`Pruning manifest at ${path}`);
     const end = timestamp.subtract({
       days: typeof this.#config.lifetime === "number"
         ? this.#config.lifetime
         : parseInt(this.#config.lifetime),
     });
-    console.info(`End date for obsolete files ${end}`);
+    log.info(`End date for obsolete files ${end}`);
 
     const latest = this.#manifest.latest;
-    console.trace(`Storing latest value ${JSON.stringify(latest)}`);
+    log.debug(`Storing latest value ${JSON.stringify(latest)}`);
 
     const existing = Object.entries(this.#manifest)
       .filter(([key]) => key !== this.#config.latest)
@@ -113,7 +114,7 @@ export class Updater {
         }),
         {},
       );
-    console.trace(
+    log.debug(
       `Storing list of existing entries ${JSON.stringify(existing)}`,
     );
 
@@ -125,10 +126,10 @@ export class Updater {
       { keep: [], remove: [] },
     );
 
-    console.trace(
+    log.debug(
       `Storing list of existing entries to keep ${JSON.stringify(keep)}`,
     );
-    console.trace(
+    log.debug(
       `Storing list of existing entries to remove ${JSON.stringify(remove)}`,
     );
 
@@ -136,12 +137,12 @@ export class Updater {
       latest,
       ...keep,
     };
-    console.trace(
+    log.debug(
       `Created new manifest contents ${JSON.stringify(this.#manifest)}`,
     );
 
     await Deno.writeTextFile(path, JSON.stringify(this.#manifest));
-    console.info("Finished updating manifest");
+    log.info("Finished updating manifest");
 
     for (const file in remove) {
       try {
@@ -150,26 +151,26 @@ export class Updater {
         console.warn(`Failed to remove file ${file}`);
       }
     }
-    console.info("Finished pruning");
+    log.info("Finished pruning");
   }
 
   async #read() {
-    console.info("Reading manifest");
+    log.info("Reading manifest");
     const path = resolve(this.#config.artifacts, this.#config.manifest);
-    console.trace(`Reading manifest at ${path}`);
+    log.debug(`Reading manifest at ${path}`);
     const data = await Deno.readTextFile(path);
     this.#manifest = JSON.parse(data);
-    console.info(`Finished reading manifest`);
+    log.info(`Finished reading manifest`);
   }
 
   async #update() {
-    console.info("Updating manifest");
+    log.info("Updating manifest");
     const timestamp = new Date(Date.now());
     const path = resolve(this.#config.artifacts, this.#config.manifest);
-    console.trace(`Updating manifest at ${path}`);
+    log.debug(`Updating manifest at ${path}`);
 
     const previous = this.#manifest.latest;
-    console.trace(
+    log.debug(
       `Storing previous value of latest ${JSON.stringify(previous)}`,
     );
 
@@ -177,7 +178,7 @@ export class Updater {
       created: timestamp,
       digest: this.#digest,
     };
-    console.trace(`Created new value of latest ${JSON.stringify(latest)}`);
+    log.debug(`Created new value of latest ${JSON.stringify(latest)}`);
 
     const existing = Object.entries(this.#manifest)
       .filter(([key]) => key !== this.#config.latest)
@@ -188,7 +189,7 @@ export class Updater {
         }),
         {},
       );
-    console.trace(
+    log.debug(
       `Storing list of existing entries ${JSON.stringify(existing)}`,
     );
 
@@ -202,19 +203,19 @@ export class Updater {
         ...existing,
       }
       : { latest };
-    console.trace(
+    log.debug(
       `Created new manifest contents ${JSON.stringify(this.#manifest)}`,
     );
 
     await Deno.writeTextFile(path, JSON.stringify(this.#manifest));
-    console.info("Finished updating manifest");
+    log.info("Finished updating manifest");
   }
 
   async #write() {
-    console.info("Writing artifact");
+    log.info("Writing artifact");
     const path = resolve(this.#config.artifacts, `${this.#digest}.txt`);
-    console.trace(`Writing artifiact at ${path}`);
+    log.debug(`Writing artifiact at ${path}`);
     await Deno.writeTextFile(path, this.#data);
-    console.info("Finished writing artifact");
+    log.info("Finished writing artifact");
   }
 }
