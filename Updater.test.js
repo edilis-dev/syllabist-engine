@@ -182,13 +182,11 @@ Deno.test({
       },
     });
 
-    const err = await assertRejects(
+    await assertRejects(
       () => new Updater().update(),
       TypeError,
       '{"error":"failure"}',
     );
-
-    console.log(err.status);
 
     assertSpyCalls(fetchMock, 1);
 
