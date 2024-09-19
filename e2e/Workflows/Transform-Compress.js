@@ -1,10 +1,10 @@
 import { assertEquals } from "@std/assert";
 import { resolve } from "@std/path";
 
-import { Cleanup } from "../Actions/Utility/Cleanup.js";
-import { Setup } from "../Actions/Utility/Setup.js";
 import * as Compress from "../Actions/Compress.js";
 import * as Transform from "../Actions/Transform.js";
+import { Cleanup } from "../Actions/Utility/Cleanup.js";
+import { Setup } from "../Actions/Utility/Setup.js";
 
 const { tmp } = await Setup();
 

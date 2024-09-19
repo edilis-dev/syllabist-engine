@@ -8,6 +8,7 @@
       "jsr:@std/bytes@^1.0.2": "jsr:@std/bytes@1.0.2",
       "jsr:@std/cli@^1.0.4": "jsr:@std/cli@1.0.5",
       "jsr:@std/data-structures@^1.0.2": "jsr:@std/data-structures@1.0.2",
+      "jsr:@std/dotenv": "jsr:@std/dotenv@0.225.1",
       "jsr:@std/dotenv@0.225.1": "jsr:@std/dotenv@0.225.1",
       "jsr:@std/encoding@1.0.3": "jsr:@std/encoding@1.0.3",
       "jsr:@std/encoding@^1.0.3": "jsr:@std/encoding@1.0.3",

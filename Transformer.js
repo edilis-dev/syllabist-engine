@@ -1,30 +1,36 @@
-import * as log from "@std/log";
+import * as log from "./Log.js";
 
 export class Transformer {
   #lines;
 
   constructor(iter) {
-    log.info("Constructing new instance");
+    log.info("Constructing");
 
     this.#lines = iter;
   }
 
   async transform(separator = ";") {
-    log.info("Starting transformer");
-    log.debug(`Separation character ${separator}`);
+    log.debug("Transforming", {
+      separator,
+    });
 
     try {
       let value = {};
 
       for await (const line of this.#lines) {
-        log.debug(`Starting iteration with ${line}`);
+        log.info("Starting iteration", {
+          line,
+        });
 
         const keys = line.split(separator);
 
         if (keys.length > 1) {
-          log.debug(`Line with ${keys.length} parts`);
+          log.debug("Line has parts", { parts: keys.length });
         } else if (keys.length === 1) {
-          console.warn(`Line ${line} has only ${keys.length} part`);
+          log.warn("Line has too few parts", {
+            line,
+            parts: keys.length,
+          });
         }
 
         value = {
@@ -36,15 +42,20 @@ export class Transformer {
           }),
         };
 
-        log.debug(`Insert result ${JSON.stringify(value)}`);
+        log.debug("Insert result", {
+          value,
+        });
       }
 
-      log.info("Transform finished");
-      log.debug(`Transform result ${JSON.stringify(value)}`);
+      log.info("Result", {
+        value,
+      });
 
       return value;
     } catch (error) {
-      log.error(`Transform errored with reason ${error.message}`);
+      log.error("Error", {
+        reason: error.message,
+      });
 
       throw error;
     }
@@ -56,7 +67,10 @@ export class Transformer {
 
       return value;
     } else if (typeof value[key] === "object") {
-      log.debug(`Entering existing key ${key} in ${JSON.stringify(value)}`);
+      log.debug("Entering existing key", {
+        key,
+        value,
+      });
 
       return {
         ...value,
@@ -67,7 +81,10 @@ export class Transformer {
         }),
       };
     } else if (typeof value[key] === "string") {
-      log.debug(`Found sibling of key ${key} in ${JSON.stringify(value)}`);
+      log.debug("Found sibling", {
+        key,
+        value,
+      });
 
       const next = keys.at(0);
 
@@ -77,14 +94,17 @@ export class Transformer {
           ...value,
           [key]: keys.length
             ? {
-              "": "",
-              [next]: next,
-            }
+                "": "",
+                [next]: next,
+              }
             : key,
         },
       });
     } else {
-      log.debug(`Inserting key ${key} into ${JSON.stringify(value)}`);
+      log.debug("Inserting key", {
+        key,
+        value,
+      });
 
       return this.#insert({
         key,

@@ -1,111 +1,183 @@
-import * as log from "@std/log";
-import { Symbol } from "./Constants.js";
+import * as log from "./Log.js";
+
+import { Symbol } from "./Compressor.constants.js";
 import { ReverseLookup } from "./Helpers.js";
 
 export class Compressor {
   #data;
 
   constructor(data) {
-    log.info("Constructing new instance");
+    log.info("Constructing");
 
     this.#data = data;
   }
 
-  parse() {
-    log.info("Starting parse");
+  compress() {
+    log.info("Compressing");
 
-    let value = [];
+    try {
+      let value = [];
 
-    for (const key in this.#data) {
-      log.debug(`Found key ${key} in ${JSON.stringify(this.#data)}`);
+      for (const key in this.#data) {
+        log.info("Starting iteration", {
+          key,
+        });
 
-      if (typeof this.#data[key] === "object") {
-        value = [...value, this.#object({ key, value: this.#data }).join("")];
-      } else {
-        value = [...value, this.#string({ key, value: this.#data }).join("")];
+        if (typeof this.#data[key] === "object") {
+          value = [...value, this.#object({ key, value: this.#data }).join("")];
+        } else {
+          value = [...value, this.#string({ key, value: this.#data }).join("")];
+        }
+
+        log.debug("Insert result", {
+          key,
+          value: this.#data,
+        });
       }
+
+      log.info("Result", {
+        value,
+      });
+
+      return value.join("\n");
+    } catch (error) {
+      log.error("Error", {
+        reason: error.message,
+      });
     }
-
-    log.info("Parse finished");
-    log.debug(`Parse result ${JSON.stringify(value)}`);
-
-    return value.join("\n");
   }
 
   #isConcatenator({ value }) {
-    return Object.keys(value).every((value) => value !== "");
+    const isConcatenator = Object.keys(value).every((value) => value !== "");
+    if (isConcatenator) {
+      log.debug("Concatenator", {
+        value,
+      });
+    }
+    return isConcatenator;
   }
 
   #isCombinator({ value }) {
-    return Object.keys(value).some((value) => value === "");
+    const isCombinator = Object.keys(value).some((value) => value === "");
+    if (isCombinator) {
+      log.debug("Combinator", {
+        value,
+      });
+    }
+    return isCombinator;
   }
 
   #isLast({ key, value }) {
-    return Object.keys(value).at(-1) === key;
+    const isLast = Object.keys(value).at(-1) === key;
+    if (isLast) {
+      log.debug("Last", {
+        value,
+      });
+    }
+    return isLast;
   }
 
   #isSibling({ value }) {
-    return Object.keys(value).filter((value) => value !== "").length > 1;
+    // prettier-ignore
+    const isSibling = Object.keys(value).filter((value) => value !== "").length > 1;
+    if (isSibling) {
+      log.debug("Sibling", {
+        value,
+      });
+    }
+    return isSibling;
   }
 
   #object({ key, stack = [], value }) {
     if (this.#isCombinator({ value: value[key] })) {
-      log.debug(
-        `Identified relationship for key ${key} as ${ReverseLookup(
-          Symbol,
-          Symbol.Combinator,
-        )}`,
-      );
+      log.debug("Identified relationship", {
+        key,
+        relationship: ReverseLookup(Symbol, Symbol.Combinator),
+      });
+
       stack.push(key, Symbol.Combinator);
+      log.debug("Starting group", {
+        key,
+      });
 
-      log.debug(`Starting group of ${key}`);
       stack.push(Symbol.GroupStart);
-      log.debug(`Starting parse of ${key}`);
-      this.#parse({ stack, value: value[key] });
-      log.debug(`Finished parse of ${key}`);
+      log.debug("Starting compress", {
+        key,
+      });
+
+      this.#compress({ stack, value: value[key] });
+      log.debug("Finished compress", {
+        key,
+      });
+
       stack.push(Symbol.GroupEnd);
-      log.debug(`Finished group of ${key}`);
+      log.debug("Finished group", {
+        key,
+      });
     } else if (this.#isConcatenator({ value: value[key] })) {
-      log.debug(
-        `Identified relationship for ${key} as ${ReverseLookup(
-          Symbol,
-          Symbol.Concatenator,
-        )}`,
-      );
-      stack.push(key, Symbol.Concatenator);
+      log.debug("Identified relationship", {
+        key,
+        relationship: ReverseLookup(Symbol, Symbol.Concatenator),
+      });
 
-      log.debug(`Starting group of ${key}`);
+      stack.push(key, Symbol.Concatenator);
+      log.debug("Starting group", {
+        key,
+      });
+
       stack.push(Symbol.GroupStart);
-      log.debug(`Starting parse of ${key}`);
-      this.#parse({ stack, value: value[key] });
-      log.debug(`Finished parse of ${key}`);
+      log.debug("Starting compress", {
+        key,
+      });
+
+      this.#compress({ stack, value: value[key] });
+      log.debug("Finished compress", {
+        key,
+      });
+
       stack.push(Symbol.GroupEnd);
+      log.debug("Finished group", {
+        key,
+      });
     } else {
-      log.debug(`Failed to identify relationship for key ${key}`);
+      log.debug("Failed to identify relationship", {
+        key,
+      });
     }
 
     return stack;
   }
 
-  #parse({ stack = [], value }) {
+  #compress({ stack = [], value }) {
     for (const key in value) {
-      log.debug(`Starting iteration with key ${key}`);
+      log.debug("Starting iteration", {
+        key,
+      });
 
       if (typeof value[key] === "object") {
-        log.debug(`Identified ${key} as object`);
+        log.debug("Identified object", {
+          key,
+          type: "object",
+        });
         this.#object({ key, stack, value });
       } else if (typeof value[key] === "string") {
-        log.debug(`Identified ${key} as string`);
+        log.debug("Identified string", {
+          key,
+          type: "string",
+        });
         this.#string({ key, stack, value });
       } else {
-        log.warning(
-          `Identified ${key} as unparseable type ${typeof value[key]}`,
-        );
+        log.warn("Identified uncompressable", {
+          key,
+          type: typeof value[key],
+        });
         continue;
       }
 
       if (key && this.#isSibling({ value }) && !this.#isLast({ key, value })) {
-        log.debug(`Identified ${key} as a sibling not in last place `);
+        log.debug("Identified sibling not in last place", {
+          key,
+        });
         stack.push(Symbol.Sibling);
       }
     }

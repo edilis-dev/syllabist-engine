@@ -1,7 +1,7 @@
 import { Expander } from "./Expander.js";
 
 Deno.bench({
-  name: "should ignore unparseable characters",
+  name: "should ignore unexpandable characters",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -9,7 +9,7 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
@@ -23,7 +23,7 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
@@ -36,7 +36,7 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
@@ -49,7 +49,7 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
@@ -62,7 +62,7 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
@@ -75,13 +75,12 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
 Deno.bench({
-  name:
-    "should return a structure with combining syllables within sibling syllables",
+  name: "should return a structure with combining syllables within sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -89,7 +88,7 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
@@ -102,13 +101,12 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
 Deno.bench({
-  name:
-    "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -116,27 +114,27 @@ Deno.bench({
       },
     };
 
-    await new Expander(iter).parse();
+    await new Expander(iter).expand();
   },
 });
 
 // Deno.bench({
 //   name: "should return a structure with several concatenated syllables",
 //   fn: async () => {
-//     await new Expander("a>dapt>a>bil>i>ty").parse();
+//     await new Expander("a>dapt>a>bil>i>ty").expand();
 //   },
 // });
 
 // Deno.bench({
 //   name: "should return a structure with several sibling syllables",
 //   fn: async () => {
-//     await new Expander("a>[ble|bout|lone|long|void]").parse();
+//     await new Expander("a>[ble|bout|lone|long|void]").expand();
 //   },
 // });
 
 // Deno.bench({
 //   name: "should return a structure with several combining syllables",
 //   fn: async () => {
-//     await new Expander("wa>ter~[borne|course|craft|fall]").parse();
+//     await new Expander("wa>ter~[borne|course|craft|fall]").expand();
 //   },
 // });

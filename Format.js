@@ -1,4 +1,4 @@
-import { Standard } from "./Constants.js";
+import { Standard } from "./Format.constants.js";
 
 export function Standardise({ data, type = Standard.JSON }) {
   if (!data) {
