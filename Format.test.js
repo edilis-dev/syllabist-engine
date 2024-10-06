@@ -1,7 +1,7 @@
 import { assert, assertThrows } from "@std/assert";
 
 import { Standardise } from "./Format.js";
-import { Standard } from "./Constants.js";
+import { Standard } from "./Format.constants.js";
 
 Deno.test({
   name: "should throw an error for missing data",

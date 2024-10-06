@@ -70,59 +70,6 @@ export class Expander {
     }
   }
 
-  #insert({ key, stack, type, value }) {
-    if (!key) {
-      log.debug("Inserting without key", {
-        type: type.toUpperCase(),
-        value,
-      });
-
-      return value;
-    } else {
-      log.debug("Inserting with key", {
-        type: type.toUpperCase(),
-        value,
-      });
-    }
-
-    const target = stack.reduce(
-      (previousValue, currentValue) => previousValue[currentValue],
-      value,
-    );
-
-    if (target) {
-      log.debug("Stack entry found");
-    } else {
-      log.warning("No stack entry found");
-    }
-
-    switch (type) {
-      case Type.Empty:
-        target[key] = { "": "" };
-        log.debug("Insert result", {
-          value,
-        });
-        return value;
-      case Type.Group:
-        target[key] = {};
-        log.debug("Insert result", {
-          value,
-        });
-        return value;
-      case Type.Value:
-        target[key] = key;
-        log.debug("Insert result", {
-          value,
-        });
-        return value;
-      default:
-        log.warning(`Insert result unexpectedly unchanged`, {
-          value,
-        });
-        return value;
-    }
-  }
-
   #expand({ key = "", stack = [], value = {} } = {}) {
     const { value: char, done } = this.#forward.next();
 
@@ -272,6 +219,59 @@ export class Expander {
           value,
         });
       }
+    }
+  }
+
+  #insert({ key, stack, type, value }) {
+    if (!key) {
+      log.debug("Inserting without key", {
+        type: type.toUpperCase(),
+        value,
+      });
+
+      return value;
+    } else {
+      log.debug("Inserting with key", {
+        type: type.toUpperCase(),
+        value,
+      });
+    }
+
+    const target = stack.reduce(
+      (previousValue, currentValue) => previousValue[currentValue],
+      value,
+    );
+
+    if (target) {
+      log.debug("Stack entry found");
+    } else {
+      log.warning("No stack entry found");
+    }
+
+    switch (type) {
+      case Type.Empty:
+        target[key] = { "": "" };
+        log.debug("Insert result", {
+          value,
+        });
+        return value;
+      case Type.Group:
+        target[key] = {};
+        log.debug("Insert result", {
+          value,
+        });
+        return value;
+      case Type.Value:
+        target[key] = key;
+        log.debug("Insert result", {
+          value,
+        });
+        return value;
+      default:
+        log.warning(`Insert result unexpectedly unchanged`, {
+          value,
+        });
+        return value;
     }
   }
 }

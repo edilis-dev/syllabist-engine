@@ -101,9 +101,9 @@ export const Groups = {
       new RegExp(
         `${Array.from(GluedSounds)
           .join("|")}|${Array.from(Vowels)
-          .map((v) => `${v}nk$`)
+          .map((v) => `${v}nk`)
           .join("|")}|${Array.from(Vowels)
-          .map((v) => `${v}ng$`)
+          .map((v) => `${v}ng`)
           .join("|")}`,
       ).test(str),
   },
@@ -115,47 +115,63 @@ export const Groups = {
   },
 };
 
-export const Patterns = {
-  LE: {
-    // prettier-ignore
-    exec: (str) =>
-      new RegExp(`(?<beginning>[a-z]*?)(?<end>[${Array.from(Consonants).join("")}]le$)`).exec(str),
-    test: (str) =>
-      new RegExp(`(?:[a-z]*[${Array.from(Consonants).join("")}]le$)`).test(str),
-  },
-  // prettier-ignore
-  VV: {
-    exec: (str) =>
-      new RegExp(`(?<beginning>[a-z]*?[${Array.from(Vowels).join("")}])(?<end>[${Array.from(Vowels).join("")}][a-z]*)`).exec(str),
-    test: (str) =>
-      new RegExp(`(?:[a-z]*[${Array.from(Vowels).join("")}](?:[${Array.from(Vowels).join("")}][a-z]*))`).test(str),
-  },
-  // prettier-ignore
-  VCV: {
-    exec: (str) =>
-      new RegExp(`(?<beginning>[a-z]*?[${Array.from(Vowels).join("")}])(?<middle>[${Array.from(Consonants).join("")}])(?<end>[${Array.from(Vowels).join("")}][a-z]*)`).exec(str),
-    test: (str) =>
-      new RegExp(`(?:[a-z]*[${Array.from(Vowels).join("")}][${Array.from(Consonants).join("")}][${Array.from(Vowels).join("")}])(?:[a-z]*)`).test(str),
-  },
-  // prettier-ignore
-  VCCV: {
-    exec: (str) =>
-      new RegExp(`(?<beginning>[a-z]*?[${Array.from(Vowels).join("")}])(?<middle>[${Array.from(Consonants).join("")}]{2})(?<end>[${Array.from(Vowels).join("")}][a-z]*)`).exec(str),
-    test: (str) =>
-      new RegExp(`(?:[a-z]*[${Array.from(Vowels).join("")}][${Array.from(Consonants).join("")}]{2}[${Array.from(Vowels).join("")}])(?:[a-z]*)`).test(str),
-  },
-  // prettier-ignore
-  VCCCV: {
-    exec: (str) =>
-      new RegExp(`(?<beginning>[a-z]*?[${Array.from(Vowels).join("")}])(?<middle>[${Array.from(Consonants).join("")}]{3})(?<end>[${Array.from(Vowels).join("")}][a-z]*)`).exec(str),
-    test: (str) =>
-      new RegExp(`(?:[a-z]*[${Array.from(Vowels).join("")}][${Array.from(Consonants).join("")}]{3}[${Array.from(Vowels).join("")}])(?:[a-z]*)`).test(str),
-  },
-  // prettier-ignore
-  VCCCCV: {
-    exec: (str) =>
-      new RegExp(`(?<beginning>[a-z]*?[${Array.from(Vowels).join("")}])(?<middle>[${Array.from(Consonants).join("")}]{4})(?<end>[${Array.from(Vowels).join("")}][a-z]*)`).exec(str),
-    test: (str) =>
-      new RegExp(`(?:[a-z]*[${Array.from(Vowels).join("")}][${Array.from(Consonants).join("")}]{4}[${Array.from(Vowels).join("")}])(?:[a-z]*)`).test(str),
-  },
+export const PatternTypes = {
+  LE: "le",
+  VCCCCV: "vccccv",
+  VCCCV: "vcccv",
+  VCCV: "vccv",
+  VCV: "vcv",
+  VV: "vv",
 };
+
+export class LEPattern {
+  #consonants = Array.from(Consonants).join("");
+
+  exec(str) {
+    return new RegExp(
+      `(?<head>[a-z]*?)(?<pattern>[${this.#consonants}]le$)`,
+    ).exec(str);
+  }
+
+  findIndex(str) {
+    const match = new RegExp(`(?:[a-z]*?)(?:[${this.#consonants}]le$)`).exec(
+      str,
+    );
+
+    return match ? match.index : null;
+  }
+
+  test(str) {
+    return new RegExp(`(?:[a-z]*[${this.#consonants}]le$)`).test(str);
+  }
+}
+
+export class VPattern {
+  #consonantCount;
+  #consonants = Array.from(Consonants).join("");
+  #vowels = Array.from(Vowels).join("");
+
+  constructor({ consonantCount } = { consonantCount: 0 }) {
+    this.#consonantCount = consonantCount;
+  }
+
+  exec(str) {
+    return new RegExp(
+      `(?<head>[a-z]*?)(?<pattern>[${this.#vowels}][${this.#consonants}]{${this.#consonantCount}}[${this.#vowels}])(?<tail>[a-z]*)`,
+    ).exec(str);
+  }
+
+  findIndex(str) {
+    const match = new RegExp(
+      `[${this.#vowels}][${this.#consonants}]{${this.#consonantCount}}[${this.#vowels}]`,
+    ).exec(str);
+
+    return match ? match.index : null;
+  }
+
+  test(str) {
+    return new RegExp(
+      `(?:[a-z]*?)(?:[${this.#vowels}][${this.#consonants}]{${this.#consonantCount}}[${this.#vowels}])(?:[a-z]*)`,
+    ).test(str);
+  }
+}

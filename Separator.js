@@ -9,9 +9,11 @@ import {
   Suffixes,
 } from "./Separator.constants.js";
 import {
-  mergeRepeatedCharacters,
   Groups,
-  Patterns,
+  LEPattern,
+  PatternTypes,
+  VPattern,
+  mergeRepeatedCharacters,
 } from "./Separator.patterns.js";
 
 export class Separator {
@@ -113,49 +115,6 @@ export class Separator {
     return this.#reverseIndex;
   }
 
-  #separate({ cache = {}, line }) {
-    const forward = this.#forward.next();
-    const backward = this.#reverse.next();
-
-    if (backward.done && forward.done) {
-      log.info("Finished parsing prefix and suffix", {
-        prefix: cache.prefix,
-        suffix: cache.suffix,
-      });
-
-      const root = this.#root(cache);
-
-      log.info("Finished parsing root", {
-        root,
-      });
-
-      return [cache.prefix, root, cache.suffix];
-    } else {
-      const [start, prefix] = this.#prefix({
-        cache,
-        index: forward.value,
-        line,
-      });
-
-      const [end, suffix] = this.#suffix({
-        cache,
-        index: backward.value,
-        line,
-      });
-
-      return this.#separate({
-        cache: {
-          end,
-          prefix,
-          root: line.slice(start, end),
-          start,
-          suffix,
-        },
-        line,
-      });
-    }
-  }
-
   #prefix({ cache, index, line }) {
     log.debug("Starting prefix parsing", {
       line,
@@ -205,9 +164,13 @@ export class Separator {
     }
 
     // prettier-ignore
-    const { BlendSounds, Digraphs, GluedSounds, Quadgraphs, Trigraphs } = Groups;
-
-    const { LE, VCCCCV, VCCCV, VCCV, VCV, VV } = Patterns;
+    const {
+      BlendSounds,
+      Digraphs,
+      GluedSounds,
+      Quadgraphs,
+      Trigraphs,
+    } = Groups;
 
     const tokens = mergeRepeatedCharacters(root);
 
@@ -215,193 +178,266 @@ export class Separator {
       tokens,
     });
 
-    if (LE.test(tokens)) {
-      log.info("Pattern match", {
-        pattern: "LE",
-      });
+    const le = new LEPattern();
+    const vccccv = new VPattern({ consonantCount: 4 });
+    const vcccv = new VPattern({ consonantCount: 3 });
+    const vccv = new VPattern({ consonantCount: 2 });
+    const vcv = new VPattern({ consonantCount: 1 });
+    const vv = new VPattern();
 
-      const match = LE.exec(root);
+    const matches = [
+      [le.findIndex(tokens), PatternTypes.LE, le.exec.bind(le)],
+      [vccccv.findIndex(tokens), PatternTypes.VCCCCV, vccccv.exec.bind(vccccv)],
+      [vcccv.findIndex(tokens), PatternTypes.VCCCV, vcccv.exec.bind(vcccv)],
+      [vccv.findIndex(tokens), PatternTypes.VCCV, vccv.exec.bind(vccv)],
+      [vcv.findIndex(tokens), PatternTypes.VCV, vcv.exec.bind(vcv)],
+      [vv.findIndex(tokens), PatternTypes.VV, vv.exec.bind(vv)],
+    ]
+      .filter(([key]) => key !== null)
+      .sort(([a], [b]) => a - b);
 
-      if (match?.groups) {
-        const {
-          groups: { beginning, end },
-        } = match;
+    const [, pattern, exec] = matches.at(0) ?? [];
 
-        log.debug("Match groups", {
-          beginning,
-          end,
+    switch (pattern) {
+      case PatternTypes.LE: {
+        log.info("Pattern match", {
+          pattern: PatternTypes.LE,
         });
 
-        return `${beginning};${this.#root({ root: end })}`;
-      }
-    } else if (VCCCCV.test(tokens)) {
-      log.info("Pattern match", {
-        pattern: "VCCCCV",
-      });
+        const match = exec(root);
 
-      const match = VCCCCV.exec(root);
+        if (match?.groups) {
+          const {
+            groups: { head, pattern },
+          } = match;
 
-      if (match?.groups) {
-        const {
-          groups: { beginning, middle, end },
-        } = match;
-
-        log.debug("Match groups", {
-          beginning,
-          middle,
-          end,
-        });
-
-        // prettier-ignore
-        return `${beginning}${middle.at(0)};${middle.at(1)}${middle.at(2)}${middle.at(3)}${end}`;
-      }
-    } else if (VCCCV.test(tokens)) {
-      log.info("Pattern match", { pattern: "VCCCV" });
-
-      const match = VCCCV.exec(root);
-
-      if (match?.groups) {
-        const {
-          groups: { beginning, middle, end },
-        } = match;
-
-        log.debug("Match groups", {
-          beginning,
-          middle,
-          end,
-        });
-
-        if (GluedSounds.test(`${beginning.at(-1)}${middle.slice(0, -1)}`)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Glued,
-            value: `${beginning.at(-1)}${middle.slice(0, -1)}`,
+          log.debug("Match groups", {
+            head,
+            pattern,
           });
 
-          return `${beginning.slice(0, -1)}${beginning.at(-1)}${middle.at(0)}${middle.at(1)};${this.#root({ root: `${middle.at(2)}${end}` })}`;
-        } else {
-          log.info("No exception identified");
-
-          return `${beginning}${middle.at(0)};${this.#root({ root: `${middle.slice(1)}${end}` })}`;
+          return `${head};${this.#root({ root: pattern })}`;
         }
       }
-    } else if (VCCV.test(tokens)) {
-      log.info("Pattern match", {
-        pattern: "VCCV",
-      });
-
-      const match = VCCV.exec(root);
-
-      if (match?.groups) {
-        const {
-          groups: { beginning, middle, end },
-        } = match;
-
-        log.debug("Match groups", {
-          beginning,
-          middle,
-          end,
+      case PatternTypes.VCCCCV: {
+        log.info("Pattern match", {
+          pattern: PatternTypes.VCCCCV,
         });
 
-        if (BlendSounds.test(middle, BlendTypes.R)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Blend.R,
-            value: middle,
+        const match = exec(root);
+
+        if (match?.groups) {
+          const {
+            groups: { head, pattern, tail },
+          } = match;
+
+          log.debug("Match groups", {
+            head,
+            pattern,
+            tail,
           });
 
-          return `${beginning};${middle}${this.#root({ root: end })}`;
-        } else if (Digraphs.test(middle, DigraphTypes.Consonant)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Digraph.Consonant,
-            value: middle,
-          });
-
-          return `${beginning}${middle};${this.#root({ root: end })}`;
-        } else if (Trigraphs.test(root)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Trigraph,
-            value: root,
-          });
-
-          return `${beginning}${middle}${end}`;
-        } else {
-          log.info("No exception identified");
-
-          return `${beginning}${middle.at(0)};${this.#root({ root: `${middle.at(1)}${end}` })}`;
+          return `${head}${pattern.slice(0, 2)};${pattern.slice(2)}${tail}`;
         }
       }
-    } else if (VCV.test(tokens)) {
-      log.info("Pattern match", {
-        pattern: "VCV",
-      });
-
-      const match = VCV.exec(root);
-
-      if (match?.groups) {
-        const {
-          groups: { beginning, middle, end },
-        } = match;
-
-        log.debug("Match groups", {
-          beginning,
-          middle,
-          end,
+      case PatternTypes.VCCCV: {
+        log.info("Pattern match", {
+          pattern: PatternTypes.VCCCV,
         });
 
-        if (Trigraphs.test(root)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Trigraph,
-            value: root,
+        const match = exec(root);
+
+        if (match?.groups) {
+          const {
+            groups: { head, pattern, tail },
+          } = match;
+
+          log.debug("Match groups", {
+            head,
+            pattern,
+            tail,
           });
 
-          return `${beginning}${middle}${end}`;
-        } else {
-          return `${beginning};${middle}${this.#root({ root: end })}`;
+          if (GluedSounds.test(pattern)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Glued,
+              value: pattern,
+            });
+
+            return `${head}${pattern.slice(0, 3)};${this.#root({ root: `${pattern.slice(3)}${tail}` })}`;
+          } else {
+            log.info("No exception identified");
+
+            return `${head}${pattern.slice(0, 2)};${this.#root({ root: `${pattern.slice(2)}${tail}` })}`;
+          }
         }
       }
-    } else if (VV.test(tokens)) {
-      log.info("Pattern match", {
-        pattern: "VV",
-      });
-
-      const match = VV.exec(root);
-
-      if (match?.groups) {
-        const {
-          groups: { beginning, end },
-        } = match;
-
-        log.debug("Match groups", {
-          beginning,
-          end,
+      case PatternTypes.VCCV: {
+        log.info("Pattern match", {
+          pattern: PatternTypes.VCCV,
         });
 
-        if (Quadgraphs.test(root)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Quadgraph,
-            value: root,
+        const match = exec(root);
+
+        if (match?.groups) {
+          const {
+            groups: { head, pattern, tail },
+          } = match;
+
+          log.debug("Match groups", {
+            head,
+            pattern,
+            tail,
           });
 
-          return `${beginning}${end}`;
-        } else if (Digraphs.test(root)) {
-          log.info("Exception identified", {
-            type: PatternExceptions.Digraph.Digraph,
-            value: root,
-          });
+          if (BlendSounds.test(pattern, BlendTypes.R)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Blend.R,
+              value: pattern,
+            });
 
-          return `${beginning}${end}`;
-        } else {
-          log.info("No exception identified");
+            return `${head}${pattern.slice(0, 1)};${this.#root({ root: `${pattern.slice(1)}${tail}` })}`;
+          } else if (Digraphs.test(pattern, DigraphTypes.Consonant)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Digraph.Consonant,
+              value: pattern,
+            });
 
-          return `${beginning};${this.#root({ root: end })}`;
+            return `${head}${pattern.slice(0, 3)};${this.#root({ root: `${pattern.slice(3)}${tail}` })}`;
+          } else if (Trigraphs.test(root)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Trigraph,
+              value: root,
+            });
+
+            return `${head}${pattern}${tail}`;
+          } else {
+            log.info("No exception identified");
+
+            return `${head}${pattern.slice(0, 2)};${this.#root({ root: `${pattern.slice(2)}${tail}` })}`;
+          }
         }
+      }
+      case PatternTypes.VCV: {
+        log.info("Pattern match", {
+          pattern: PatternTypes.VCV,
+        });
+
+        const match = exec(root);
+
+        if (match?.groups) {
+          const {
+            groups: { head, pattern, tail },
+          } = match;
+
+          log.debug("Match groups", {
+            head,
+            pattern,
+            tail,
+          });
+
+          if (Trigraphs.test(`${head}${pattern}`)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Trigraph,
+              value: root,
+            });
+
+            return `${head}${pattern};${this.#root({ root: tail })}`;
+          } else {
+            return `${head}${pattern.slice(0, 1)};${this.#root({ root: `${pattern.slice(1)}${tail}` })}`;
+          }
+        }
+      }
+      case PatternTypes.VV: {
+        log.info("Pattern match", {
+          pattern: PatternTypes.VV,
+        });
+
+        const match = exec(root);
+
+        if (match?.groups) {
+          const {
+            groups: { head, pattern, tail },
+          } = match;
+
+          log.debug("Match groups", {
+            head,
+            pattern,
+            tail,
+          });
+
+          if (Quadgraphs.test(root)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Quadgraph,
+              value: root,
+            });
+
+            return `${head}${pattern}${tail}`;
+          } else if (Digraphs.test(root)) {
+            log.info("Exception identified", {
+              type: PatternExceptions.Digraph.Digraph,
+              value: root,
+            });
+
+            return `${head}${pattern}${tail}`;
+          } else {
+            log.info("No exception identified");
+
+            return `${head}${pattern.at(0)};${this.#root({ root: `${pattern.at(1)}${tail}` })}`;
+          }
+        }
+      }
+      default: {
+        log.info("No pattern match", {
+          value: root,
+        });
+
+        return root;
       }
     }
+  }
 
-    log.info("No pattern match", {
-      value: root,
-    });
+  #separate({ cache = {}, line }) {
+    const forward = this.#forward.next();
+    const backward = this.#reverse.next();
 
-    return root;
+    if (backward.done && forward.done) {
+      log.info("Finished parsing prefix and suffix", {
+        prefix: cache.prefix,
+        suffix: cache.suffix,
+      });
+
+      const root = this.#root(cache);
+
+      log.info("Finished parsing root", {
+        root,
+      });
+
+      return [cache.prefix, root, cache.suffix];
+    } else {
+      const [start, prefix] = this.#prefix({
+        cache,
+        index: forward.value,
+        line,
+      });
+
+      const [end, suffix] = this.#suffix({
+        cache,
+        index: backward.value,
+        line,
+      });
+
+      return this.#separate({
+        cache: {
+          end,
+          prefix,
+          root: line.slice(start, end),
+          start,
+          suffix,
+        },
+        line,
+      });
+    }
   }
 
   #suffix({ cache, index, line }) {

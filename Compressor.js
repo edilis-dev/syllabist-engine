@@ -44,7 +44,46 @@ export class Compressor {
       log.error("Error", {
         reason: error.message,
       });
+
+      throw error;
     }
+  }
+
+  #compress({ stack = [], value }) {
+    for (const key in value) {
+      log.debug("Starting iteration", {
+        key,
+      });
+
+      if (typeof value[key] === "object") {
+        log.debug("Identified object", {
+          key,
+          type: "object",
+        });
+        this.#object({ key, stack, value });
+      } else if (typeof value[key] === "string") {
+        log.debug("Identified string", {
+          key,
+          type: "string",
+        });
+        this.#string({ key, stack, value });
+      } else {
+        log.warn("Identified uncompressable", {
+          key,
+          type: typeof value[key],
+        });
+        continue;
+      }
+
+      if (key && this.#isSibling({ value }) && !this.#isLast({ key, value })) {
+        log.debug("Identified sibling not in last place", {
+          key,
+        });
+        stack.push(Symbol.Sibling);
+      }
+    }
+
+    return stack;
   }
 
   #isConcatenator({ value }) {
@@ -143,43 +182,6 @@ export class Compressor {
       log.debug("Failed to identify relationship", {
         key,
       });
-    }
-
-    return stack;
-  }
-
-  #compress({ stack = [], value }) {
-    for (const key in value) {
-      log.debug("Starting iteration", {
-        key,
-      });
-
-      if (typeof value[key] === "object") {
-        log.debug("Identified object", {
-          key,
-          type: "object",
-        });
-        this.#object({ key, stack, value });
-      } else if (typeof value[key] === "string") {
-        log.debug("Identified string", {
-          key,
-          type: "string",
-        });
-        this.#string({ key, stack, value });
-      } else {
-        log.warn("Identified uncompressable", {
-          key,
-          type: typeof value[key],
-        });
-        continue;
-      }
-
-      if (key && this.#isSibling({ value }) && !this.#isLast({ key, value })) {
-        log.debug("Identified sibling not in last place", {
-          key,
-        });
-        stack.push(Symbol.Sibling);
-      }
     }
 
     return stack;
