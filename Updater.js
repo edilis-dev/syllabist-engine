@@ -110,10 +110,9 @@ export class Updater {
       path,
     });
     const end = timestamp.subtract({
-      days:
-        typeof this.#config.lifetime === "number"
-          ? this.#config.lifetime
-          : parseInt(this.#config.lifetime),
+      days: typeof this.#config.lifetime === "number"
+        ? this.#config.lifetime
+        : parseInt(this.#config.lifetime),
     });
     log.info("Date for obsolete files", {
       end,
@@ -222,13 +221,13 @@ export class Updater {
 
     this.#manifest = previous.digest
       ? {
-          latest,
-          [previous.digest]: {
-            created: previous.created,
-            obsoleted: timestamp,
-          },
-          ...existing,
-        }
+        latest,
+        [previous.digest]: {
+          created: previous.created,
+          obsoleted: timestamp,
+        },
+        ...existing,
+      }
       : { latest };
     log.debug("Created new manifest contents", {
       contents: this.#manifest,

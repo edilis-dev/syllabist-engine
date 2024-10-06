@@ -117,8 +117,8 @@ export class Compressor {
   }
 
   #isSibling({ value }) {
-    // prettier-ignore
-    const isSibling = Object.keys(value).filter((value) => value !== "").length > 1;
+    const isSibling =
+      Object.keys(value).filter((value) => value !== "").length > 1;
     if (isSibling) {
       log.debug("Sibling", {
         value,

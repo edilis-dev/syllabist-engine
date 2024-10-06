@@ -94,9 +94,9 @@ export class Transformer {
           ...value,
           [key]: keys.length
             ? {
-                "": "",
-                [next]: next,
-              }
+              "": "",
+              [next]: next,
+            }
             : key,
         },
       });

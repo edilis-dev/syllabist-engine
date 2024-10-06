@@ -133,7 +133,8 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with combining syllables within sibling syllables",
+  name:
+    "should return a structure with combining syllables within sibling syllables",
   fn: () => {
     const actual = new Compressor({
       a: {
@@ -178,7 +179,8 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name:
+    "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: () => {
     const actual = new Compressor({
       ac: {

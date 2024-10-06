@@ -11,9 +11,9 @@ import {
 import {
   Groups,
   LEPattern,
+  mergeRepeatedCharacters,
   PatternTypes,
   VPattern,
-  mergeRepeatedCharacters,
 } from "./Separator.patterns.js";
 
 export class Separator {
@@ -163,14 +163,8 @@ export class Separator {
       return `${this.#root({ root: a })};${this.#root({ root: b })}`;
     }
 
-    // prettier-ignore
-    const {
-      BlendSounds,
-      Digraphs,
-      GluedSounds,
-      Quadgraphs,
-      Trigraphs,
-    } = Groups;
+    const { BlendSounds, Digraphs, GluedSounds, Quadgraphs, Trigraphs } =
+      Groups;
 
     const tokens = mergeRepeatedCharacters(root);
 
@@ -264,11 +258,19 @@ export class Separator {
               value: pattern,
             });
 
-            return `${head}${pattern.slice(0, 3)};${this.#root({ root: `${pattern.slice(3)}${tail}` })}`;
+            return `${head}${pattern.slice(0, 3)};${
+              this.#root({
+                root: `${pattern.slice(3)}${tail}`,
+              })
+            }`;
           } else {
             log.info("No exception identified");
 
-            return `${head}${pattern.slice(0, 2)};${this.#root({ root: `${pattern.slice(2)}${tail}` })}`;
+            return `${head}${pattern.slice(0, 2)};${
+              this.#root({
+                root: `${pattern.slice(2)}${tail}`,
+              })
+            }`;
           }
         }
       }
@@ -296,14 +298,22 @@ export class Separator {
               value: pattern,
             });
 
-            return `${head}${pattern.slice(0, 1)};${this.#root({ root: `${pattern.slice(1)}${tail}` })}`;
+            return `${head}${pattern.slice(0, 1)};${
+              this.#root({
+                root: `${pattern.slice(1)}${tail}`,
+              })
+            }`;
           } else if (Digraphs.test(pattern, DigraphTypes.Consonant)) {
             log.info("Exception identified", {
               type: PatternExceptions.Digraph.Consonant,
               value: pattern,
             });
 
-            return `${head}${pattern.slice(0, 3)};${this.#root({ root: `${pattern.slice(3)}${tail}` })}`;
+            return `${head}${pattern.slice(0, 3)};${
+              this.#root({
+                root: `${pattern.slice(3)}${tail}`,
+              })
+            }`;
           } else if (Trigraphs.test(root)) {
             log.info("Exception identified", {
               type: PatternExceptions.Trigraph,
@@ -314,7 +324,11 @@ export class Separator {
           } else {
             log.info("No exception identified");
 
-            return `${head}${pattern.slice(0, 2)};${this.#root({ root: `${pattern.slice(2)}${tail}` })}`;
+            return `${head}${pattern.slice(0, 2)};${
+              this.#root({
+                root: `${pattern.slice(2)}${tail}`,
+              })
+            }`;
           }
         }
       }
@@ -344,7 +358,11 @@ export class Separator {
 
             return `${head}${pattern};${this.#root({ root: tail })}`;
           } else {
-            return `${head}${pattern.slice(0, 1)};${this.#root({ root: `${pattern.slice(1)}${tail}` })}`;
+            return `${head}${pattern.slice(0, 1)};${
+              this.#root({
+                root: `${pattern.slice(1)}${tail}`,
+              })
+            }`;
           }
         }
       }
@@ -383,7 +401,11 @@ export class Separator {
           } else {
             log.info("No exception identified");
 
-            return `${head}${pattern.at(0)};${this.#root({ root: `${pattern.at(1)}${tail}` })}`;
+            return `${head}${pattern.at(0)};${
+              this.#root({
+                root: `${pattern.at(1)}${tail}`,
+              })
+            }`;
           }
         }
       }

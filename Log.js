@@ -16,12 +16,12 @@ setup({
             message: msg,
             args: args.length
               ? args.reduce(
-                  (previousValue, currentValue) => ({
-                    ...previousValue,
-                    ...currentValue,
-                  }),
-                  {},
-                )
+                (previousValue, currentValue) => ({
+                  ...previousValue,
+                  ...currentValue,
+                }),
+                {},
+              )
               : undefined,
           },
           null,

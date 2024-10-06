@@ -41,7 +41,6 @@ export function mergeRepeatedCharacters(str) {
 }
 
 export const Groups = {
-  // prettier-ignore
   BlendSounds: {
     test: (str, type) => {
       switch (type) {
@@ -58,17 +57,22 @@ export const Groups = {
           return new RegExp(Array.from(OtherBlends).join("|")).test(str);
         }
         default: {
-          return new RegExp(`${Array.from(LBlends)
-            .join("|")}|${Array.from(RBlends)
-            .join("|")}|${Array.from(SBlends)
-            .join("|")}|${Array.from(OtherBlends)
-            .join("|")}`,
+          return new RegExp(
+            `${Array.from(LBlends).join("|")}|${
+              Array.from(RBlends).join(
+                "|",
+              )
+            }|${Array.from(SBlends).join("|")}|${
+              Array.from(OtherBlends).join(
+                "|",
+              )
+            }`,
           ).test(str);
         }
       }
     },
   },
-  // prettier-ignore
+
   Digraphs: {
     test: (str, position) => {
       switch (position) {
@@ -85,26 +89,34 @@ export const Groups = {
           return new RegExp(Array.from(VowelDigraphs).join("|")).test(str);
         }
         default: {
-          return new RegExp(`${Array.from(ConsonantDigraphs)
-            .join("|")}|${Array.from(FinalDigraphs)
-            .join("|")}|${Array.from(InitialDigraphs)
-            .join("|")}|${Array.from(VowelDigraphs)
-            .join("|")}`
-          ).test(str)
+          return new RegExp(
+            `${Array.from(ConsonantDigraphs).join("|")}|${
+              Array.from(
+                FinalDigraphs,
+              ).join("|")
+            }|${Array.from(InitialDigraphs).join("|")}|${
+              Array.from(
+                VowelDigraphs,
+              ).join("|")
+            }`,
+          ).test(str);
         }
       }
     },
   },
-  // prettier-ignore
+
   GluedSounds: {
     test: (str) =>
       new RegExp(
-        `${Array.from(GluedSounds)
-          .join("|")}|${Array.from(Vowels)
-          .map((v) => `${v}nk`)
-          .join("|")}|${Array.from(Vowels)
-          .map((v) => `${v}ng`)
-          .join("|")}`,
+        `${Array.from(GluedSounds).join("|")}|${
+          Array.from(Vowels)
+            .map((v) => `${v}nk`)
+            .join("|")
+        }|${
+          Array.from(Vowels)
+            .map((v) => `${v}ng`)
+            .join("|")
+        }`,
       ).test(str),
   },
   Quadgraphs: {
