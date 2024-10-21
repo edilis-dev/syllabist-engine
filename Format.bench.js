@@ -1,4 +1,4 @@
-import { Standard } from "./Constants.js";
+import { Standard } from "./Format.constants.js";
 import { Standardise } from "./Format.js";
 
 Deno.bench({

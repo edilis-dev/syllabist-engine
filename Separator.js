@@ -212,6 +212,8 @@ export class Separator {
 
           return `${head};${this.#root({ root: pattern })}`;
         }
+
+        return root;
       }
       case PatternTypes.VCCCCV: {
         log.info("Pattern match", {
@@ -233,6 +235,8 @@ export class Separator {
 
           return `${head}${pattern.slice(0, 2)};${pattern.slice(2)}${tail}`;
         }
+
+        return root;
       }
       case PatternTypes.VCCCV: {
         log.info("Pattern match", {
@@ -273,6 +277,8 @@ export class Separator {
             }`;
           }
         }
+
+        return root;
       }
       case PatternTypes.VCCV: {
         log.info("Pattern match", {
@@ -331,6 +337,8 @@ export class Separator {
             }`;
           }
         }
+
+        return root;
       }
       case PatternTypes.VCV: {
         log.info("Pattern match", {
@@ -365,6 +373,8 @@ export class Separator {
             }`;
           }
         }
+
+        return root;
       }
       case PatternTypes.VV: {
         log.info("Pattern match", {
@@ -408,6 +418,8 @@ export class Separator {
             }`;
           }
         }
+
+        return root;
       }
       default: {
         log.info("No pattern match", {
