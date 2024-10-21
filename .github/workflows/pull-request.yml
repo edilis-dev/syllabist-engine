@@ -12,24 +12,12 @@ permissions:
   contents: read
 
 jobs:
-  # Documentation:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-
-  #     - name: Setup Node.js environment
-  #       uses: actions/setup-node@v3.8.1
-
-  #     - name: Build documentation
-  #       run: npx jsdoc *.js --access all --destination docs
   Format:
     runs-on: ubuntu-latest
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
@@ -45,7 +33,7 @@ jobs:
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
@@ -66,7 +54,7 @@ jobs:
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
@@ -81,7 +69,7 @@ jobs:
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
@@ -96,7 +84,7 @@ jobs:
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
@@ -111,7 +99,7 @@ jobs:
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1

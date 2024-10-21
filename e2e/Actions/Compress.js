@@ -8,14 +8,11 @@ export const defaults = {
 };
 
 export const compress = async ({
-  files: {
-    input = defaults.files.input,
-    output = defaults.files.output,
-  },
+  files: { input = defaults.files.input, output = defaults.files.output },
 } = defaults) => {
   const text = await Deno.readTextFile(input);
 
-  const data = new Compressor(JSON.parse(text)).parse();
+  const data = new Compressor(JSON.parse(text)).compress();
 
   await Deno.writeTextFile(output, data);
 };

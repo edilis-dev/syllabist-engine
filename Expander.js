@@ -1,4 +1,6 @@
-import { Charset, Symbol, Type } from "./Constants.js";
+import * as log from "./Log.js";
+
+import { Charset, Symbol, Type } from "./Expander.constants.js";
 import { ReverseLookup } from "./Helpers.js";
 
 export class Expander {
@@ -6,32 +8,43 @@ export class Expander {
   #lines;
 
   constructor(iter) {
-    console.info("Constructing new instance");
+    log.info("Constructing");
 
     this.#lines = iter;
   }
 
-  async parse() {
-    console.info("Starting parse");
+  async expand() {
+    log.info("Expanding");
 
     try {
       let value = {};
 
       for await (const line of this.#lines) {
+        log.info("Starting iteration", {
+          line,
+        });
+
         this.#forward = this.iterator(line);
 
         value = {
           ...value,
-          ...this.#parse(),
+          ...this.#expand(),
         };
+
+        log.debug("Insert result", {
+          value,
+        });
       }
 
-      console.info("Parse finished");
-      console.trace(`Parse result ${JSON.stringify(value)}`);
+      log.info("Result", {
+        value,
+      });
 
       return value;
     } catch (error) {
-      console.error(`Parse errored with reason: ${error.message}`);
+      log.error("Error", {
+        reason: error.message,
+      });
 
       throw error;
     }
@@ -44,72 +57,24 @@ export class Expander {
       throw new TypeError("Empty line");
     }
 
-    console.trace(`Starting iterator with ${line}`);
+    log.debug("Starting iterator", {
+      line,
+    });
 
     while (counter < line.length) {
-      console.trace(`Starting iteration ${counter}`);
+      log.debug("Iteration", {
+        index: counter,
+      });
+
       yield line[counter++];
     }
   }
 
-  #insert({ key, stack, type, value }) {
-    if (!key) {
-      console.trace(
-        `Inserting ${type.toUpperCase()} without key into ${
-          JSON.stringify(
-            value,
-          )
-        }`,
-      );
-
-      return value;
-    } else {
-      console.trace(
-        `Inserting ${type.toUpperCase()} with key "${key}" into ${
-          JSON.stringify(
-            value,
-          )
-        }`,
-      );
-    }
-
-    const target = stack.reduce(
-      (previousValue, currentValue) => previousValue[currentValue],
-      value,
-    );
-
-    if (target) {
-      console.trace("Stack entry found");
-    } else {
-      console.warn("No stack entry found");
-    }
-
-    switch (type) {
-      case Type.Empty:
-        target[key] = { "": "" };
-        console.trace(`Insert result ${JSON.stringify(value)}`);
-        return value;
-      case Type.Group:
-        target[key] = {};
-        console.trace(`Insert result ${JSON.stringify(value)}`);
-        return value;
-      case Type.Value:
-        target[key] = key;
-        console.trace(`Insert result ${JSON.stringify(value)}`);
-        return value;
-      default:
-        console.warn(
-          `Insert result unexpectedly unchanged ${JSON.stringify(value)}`,
-        );
-        return value;
-    }
-  }
-
-  #parse({ key = "", stack = [], value = {} } = {}) {
+  #expand({ key = "", stack = [], value = {} } = {}) {
     const { value: char, done } = this.#forward.next();
 
     if (done) {
-      console.trace("Parsing last character", {
+      log.debug("Parsing last character", {
         character: key ? key : null,
       });
 
@@ -126,9 +91,11 @@ export class Expander {
     }
 
     if (!Charset.test(char)) {
-      console.warn(`Unparseable character ${char}`);
+      log.warn("Unexpandable character", {
+        char,
+      });
 
-      return this.#parse({
+      return this.#expand({
         key,
         stack,
         value,
@@ -137,9 +104,10 @@ export class Expander {
 
     switch (char) {
       case Symbol.Combinator: {
-        console.trace(
-          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
-        );
+        log.debug("Identified character", {
+          char,
+          symbol: ReverseLookup(Symbol, char),
+        });
 
         const newValue = this.#insert({
           key,
@@ -150,17 +118,21 @@ export class Expander {
 
         const newStack = stack.concat(key);
 
-        console.trace(`Pushed ${key} onto stack ${newStack}`);
+        log.debug("Pushed key onto stack", {
+          key,
+          stack: newStack,
+        });
 
-        return this.#parse({
+        return this.#expand({
           stack: newStack,
           value: newValue,
         });
       }
       case Symbol.Concatenator: {
-        console.trace(
-          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
-        );
+        log.debug("Identified character", {
+          char,
+          symbol: ReverseLookup(Symbol, char),
+        });
 
         const newValue = this.#insert({
           key,
@@ -171,17 +143,21 @@ export class Expander {
 
         const newStack = stack.concat(key);
 
-        console.trace(`Pushed ${key} onto stack ${newStack}`);
+        log.debug("Pushed key onto stack", {
+          key,
+          stack: newStack,
+        });
 
-        return this.#parse({
+        return this.#expand({
           stack: newStack,
           value: newValue,
         });
       }
       case Symbol.GroupEnd: {
-        console.trace(
-          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
-        );
+        log.debug("Identified character", {
+          char,
+          symbol: ReverseLookup(Symbol, char),
+        });
 
         const newValue = this.#insert({
           key,
@@ -192,28 +168,33 @@ export class Expander {
 
         const newStack = stack.slice(0, -1);
 
-        console.trace(`Popped ${key} from stack ${newStack}`);
+        log.debug("Popped from stack", {
+          key,
+          stack: newStack,
+        });
 
-        return this.#parse({
+        return this.#expand({
           stack: newStack,
           value: newValue,
         });
       }
       case Symbol.GroupStart: {
-        console.trace(
-          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
-        );
+        log.debug("Identified character", {
+          char,
+          symbol: ReverseLookup(Symbol, char),
+        });
 
-        return this.#parse({
+        return this.#expand({
           key,
           stack,
           value,
         });
       }
       case Symbol.Sibling: {
-        console.trace(
-          `Idefinited character ${char} as ${ReverseLookup(Symbol, char)}`,
-        );
+        log.debug("Identified character", {
+          char,
+          symbol: ReverseLookup(Symbol, char),
+        });
 
         const newValue = this.#insert({
           key,
@@ -222,20 +203,75 @@ export class Expander {
           value,
         });
 
-        return this.#parse({
+        return this.#expand({
           stack,
           value: newValue,
         });
       }
       default: {
-        console.trace(`Identified alphabetical character ${char}`);
+        log.debug("Identified alphabetical character", {
+          char,
+        });
 
-        return this.#parse({
+        return this.#expand({
           key: `${key}${char}`,
           stack,
           value,
         });
       }
+    }
+  }
+
+  #insert({ key, stack, type, value }) {
+    if (!key) {
+      log.debug("Inserting without key", {
+        type: type.toUpperCase(),
+        value,
+      });
+
+      return value;
+    } else {
+      log.debug("Inserting with key", {
+        type: type.toUpperCase(),
+        value,
+      });
+    }
+
+    const target = stack.reduce(
+      (previousValue, currentValue) => previousValue[currentValue],
+      value,
+    );
+
+    if (target) {
+      log.debug("Stack entry found");
+    } else {
+      log.warning("No stack entry found");
+    }
+
+    switch (type) {
+      case Type.Empty:
+        target[key] = { "": "" };
+        log.debug("Insert result", {
+          value,
+        });
+        return value;
+      case Type.Group:
+        target[key] = {};
+        log.debug("Insert result", {
+          value,
+        });
+        return value;
+      case Type.Value:
+        target[key] = key;
+        log.debug("Insert result", {
+          value,
+        });
+        return value;
+      default:
+        log.warning(`Insert result unexpectedly unchanged`, {
+          value,
+        });
+        return value;
     }
   }
 }

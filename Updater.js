@@ -1,4 +1,7 @@
 import "@std/dotenv/load";
+
+import * as log from "./Log.js";
+
 import { encodeHex } from "@std/encoding/hex";
 import { resolve } from "@std/path";
 
@@ -17,7 +20,9 @@ export class Updater {
   #source =
     "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt";
 
-  constructor() {}
+  constructor() {
+    log.debug("Updating");
+  }
 
   async update(source) {
     try {
@@ -33,30 +38,35 @@ export class Updater {
       await this.#read();
 
       if (this.#digest === this.#manifest.latest.digest) {
-        console.info("Source is unchanged");
+        log.info("Source is unchanged");
       } else {
-        console.info("Source changed");
+        log.info("Source changed");
 
         await this.#write();
         await this.#update();
       }
 
       await this.#prune();
+      log.info("Finished");
     } catch (error) {
-      console.error(error);
+      log.error("Error", {
+        reason: error.message,
+      });
 
       throw error;
     }
   }
 
   async #fetch(source = this.#source) {
-    console.info("Starting fetch");
-    console.trace(`Source ${source}`);
+    log.info("Fetch");
+    log.debug("Source", {
+      source,
+    });
     const response = await fetch(source);
 
     if (response.ok) {
       this.#data = await response.text();
-      console.trace("Finished fetch");
+      log.info("Finished");
     } else {
       const json = await response
         .clone()
@@ -70,39 +80,48 @@ export class Updater {
         .then((text) => text)
         .catch(() => undefined);
 
-      console.error(
-        `Fetch failed with reason: ${
-          JSON.stringify(json) || text || response.statusText
-        }`,
-      );
+      log.error("Failed", {
+        reason: JSON.stringify(json) || text || response.statusText,
+      });
 
       throw new TypeError(JSON.stringify(json) || text || response.statusText);
     }
   }
 
   async #hash() {
-    console.info("Digesting file");
+    log.info("Calulating digest");
     const encoder = new TextEncoder().encode(this.#data);
     const buffer = await crypto.subtle.digest("SHA-256", encoder);
     this.#digest = encodeHex(buffer);
-    console.trace(`Calculated digest ${this.#digest}`);
-    console.info("Finished digesting file");
+    log.debug("Digest", {
+      digest: this.#digest,
+    });
+    log.info("Finished", {
+      digest: this.#digest,
+    });
   }
 
   async #prune() {
-    console.info("Pruning manifest");
+    log.info("Pruning manifest");
     const timestamp = new Calendar(new Date(Date.now()));
+
     const path = resolve(this.#config.artifacts, this.#config.manifest);
-    console.trace(`Pruning manifest at ${path}`);
+    log.debug("Pruning manifest", {
+      path,
+    });
     const end = timestamp.subtract({
       days: typeof this.#config.lifetime === "number"
         ? this.#config.lifetime
         : parseInt(this.#config.lifetime),
     });
-    console.info(`End date for obsolete files ${end}`);
+    log.info("Date for obsolete files", {
+      end,
+    });
 
     const latest = this.#manifest.latest;
-    console.trace(`Storing latest value ${JSON.stringify(latest)}`);
+    log.debug("Storing latest value", {
+      value: latest,
+    });
 
     const existing = Object.entries(this.#manifest)
       .filter(([key]) => key !== this.#config.latest)
@@ -113,9 +132,9 @@ export class Updater {
         }),
         {},
       );
-    console.trace(
-      `Storing list of existing entries ${JSON.stringify(existing)}`,
-    );
+    log.debug("Storing list of existing entries", {
+      entries: existing,
+    });
 
     const { keep, remove } = Object.entries(existing).reduce(
       ({ keep, remove }, [key, value]) =>
@@ -125,59 +144,67 @@ export class Updater {
       { keep: [], remove: [] },
     );
 
-    console.trace(
-      `Storing list of existing entries to keep ${JSON.stringify(keep)}`,
-    );
-    console.trace(
-      `Storing list of existing entries to remove ${JSON.stringify(remove)}`,
-    );
+    log.debug("List of entries to keep", {
+      entries: keep,
+    });
+    log.debug("List of entries to remove", {
+      entries: remove,
+    });
 
     this.#manifest = {
       latest,
       ...keep,
     };
-    console.trace(
-      `Created new manifest contents ${JSON.stringify(this.#manifest)}`,
-    );
+    log.debug("Created new manifest contents", {
+      contents: this.#manifest,
+    });
 
     await Deno.writeTextFile(path, JSON.stringify(this.#manifest));
-    console.info("Finished updating manifest");
+    log.info("Finished updating manifest");
 
     for (const file in remove) {
       try {
         await Deno.remove(resolve(this.#config.artifacts, `${file}.txt`));
       } catch {
-        console.warn(`Failed to remove file ${file}`);
+        log.warn("Failed to remove file", {
+          file,
+        });
       }
     }
-    console.info("Finished pruning");
+    log.info("Finished");
   }
 
   async #read() {
-    console.info("Reading manifest");
+    log.info("Reading manifest");
     const path = resolve(this.#config.artifacts, this.#config.manifest);
-    console.trace(`Reading manifest at ${path}`);
+    log.debug("Path", {
+      path,
+    });
     const data = await Deno.readTextFile(path);
     this.#manifest = JSON.parse(data);
-    console.info(`Finished reading manifest`);
+    log.info("Finished");
   }
 
   async #update() {
-    console.info("Updating manifest");
+    log.info("Updating manifest");
     const timestamp = new Date(Date.now());
     const path = resolve(this.#config.artifacts, this.#config.manifest);
-    console.trace(`Updating manifest at ${path}`);
+    log.debug("Path", {
+      path,
+    });
 
     const previous = this.#manifest.latest;
-    console.trace(
-      `Storing previous value of latest ${JSON.stringify(previous)}`,
-    );
+    log.debug("Storing previous value", {
+      value: previous,
+    });
 
     const latest = {
       created: timestamp,
       digest: this.#digest,
     };
-    console.trace(`Created new value of latest ${JSON.stringify(latest)}`);
+    log.debug("Created new value", {
+      value: latest,
+    });
 
     const existing = Object.entries(this.#manifest)
       .filter(([key]) => key !== this.#config.latest)
@@ -188,9 +215,9 @@ export class Updater {
         }),
         {},
       );
-    console.trace(
-      `Storing list of existing entries ${JSON.stringify(existing)}`,
-    );
+    log.debug("Storing list of existing entries", {
+      entries: existing,
+    });
 
     this.#manifest = previous.digest
       ? {
@@ -202,19 +229,21 @@ export class Updater {
         ...existing,
       }
       : { latest };
-    console.trace(
-      `Created new manifest contents ${JSON.stringify(this.#manifest)}`,
-    );
+    log.debug("Created new manifest contents", {
+      contents: this.#manifest,
+    });
 
     await Deno.writeTextFile(path, JSON.stringify(this.#manifest));
-    console.info("Finished updating manifest");
+    log.info("Finished");
   }
 
   async #write() {
-    console.info("Writing artifact");
+    log.info("Writing artifact");
     const path = resolve(this.#config.artifacts, `${this.#digest}.txt`);
-    console.trace(`Writing artifiact at ${path}`);
+    log.debug("Path", {
+      path,
+    });
     await Deno.writeTextFile(path, this.#data);
-    console.info("Finished writing artifact");
+    log.info("Finished");
   }
 }

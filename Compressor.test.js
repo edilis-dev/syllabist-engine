@@ -8,7 +8,7 @@ Deno.test({
     const compressor = new Compressor({ "": null });
 
     assertThrows(
-      () => compressor.parse(),
+      () => compressor.compress(),
       TypeError,
       "Cannot convert undefined or null to object",
     );
@@ -17,14 +17,14 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should ignores unparseable types",
+  name: "should ignores uncompressable types",
   fn: () => {
     const actual = new Compressor({
       a: {
         bout: -1,
         back: "back",
       },
-    }).parse();
+    }).compress();
 
     const expected = "a>[back]";
 
@@ -58,7 +58,7 @@ Deno.test({
           },
         },
       },
-    }).parse();
+    }).compress();
 
     const expected =
       "a>[bout]\nac>[com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]]";
@@ -71,7 +71,7 @@ Deno.test({
 Deno.test({
   name: "should return a stucture with a single syllable",
   fn: () => {
-    const actual = new Compressor({ a: "a" }).parse();
+    const actual = new Compressor({ a: "a" }).compress();
 
     const expected = "a";
 
@@ -87,7 +87,7 @@ Deno.test({
       a: {
         bout: "bout",
       },
-    }).parse();
+    }).compress();
 
     const expected = "a>[bout]";
 
@@ -104,7 +104,7 @@ Deno.test({
         ble: "ble",
         bout: "bout",
       },
-    }).parse();
+    }).compress();
 
     const expected = "a>[ble|bout]";
 
@@ -123,7 +123,7 @@ Deno.test({
           borne: "borne",
         },
       },
-    }).parse();
+    }).compress();
 
     const expected = "wa>[ter~[borne]]";
 
@@ -146,7 +146,7 @@ Deno.test({
           doned: "doned",
         },
       },
-    }).parse();
+    }).compress();
 
     const expected = "a>[ban>[don~[ment]|doned]]";
 
@@ -169,7 +169,7 @@ Deno.test({
           dant: "dant",
         },
       },
-    }).parse();
+    }).compress();
 
     const expected = "a>[bra>[sion|sive]|bun>[dance|dant]]";
 
@@ -201,7 +201,7 @@ Deno.test({
           },
         },
       },
-    }).parse();
+    }).compress();
 
     const expected = "ac>[com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]]";
 

@@ -12,9 +12,4 @@ export const Symbol = Object.freeze({
   Sibling: "|",
 });
 
-export const Standard = Object.freeze({
-  JSON: "json",
-  Text: "text",
-});
-
 export const Charset = new RegExp(`[${Object.values(Symbol).join("\\")}a-z-]`);

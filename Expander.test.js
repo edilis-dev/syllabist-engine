@@ -5,7 +5,7 @@ import { Expander } from "./Expander.js";
 Deno.test({
   name: "should throw an error for missing data",
   fn: async () => {
-    await assertRejects(() => new Expander().parse(), TypeError);
+    await assertRejects(() => new Expander().expand(), TypeError);
   },
   ignore: false,
 });
@@ -20,7 +20,7 @@ Deno.test({
     };
 
     await assertRejects(
-      () => new Expander(iter).parse(),
+      () => new Expander(iter).expand(),
       TypeError,
       "Empty line",
     );
@@ -29,7 +29,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should ignore unparseable characters",
+  name: "should ignore unexpandable characters",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -37,7 +37,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       "ab-out": "ab-out",
@@ -58,7 +58,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       a: {
@@ -98,7 +98,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       a: "a",
@@ -118,7 +118,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       a: {
@@ -140,7 +140,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       a: {
@@ -163,7 +163,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       wa: {
@@ -189,7 +189,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       a: {
@@ -217,7 +217,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       a: {
@@ -247,7 +247,7 @@ Deno.test({
       },
     };
 
-    const actual = await new Expander(iter).parse();
+    const actual = await new Expander(iter).expand();
 
     const expected = {
       ac: {

@@ -1,14 +1,14 @@
 import { Compressor } from "./Compressor.js";
 
 Deno.test({
-  name: "should ignores unparseable types",
+  name: "should ignores uncompressable types",
   fn: () => {
     new Compressor({
       a: {
         bout: -1,
         back: "back",
       },
-    }).parse();
+    }).compress();
   },
 });
 
@@ -37,14 +37,14 @@ Deno.bench({
           },
         },
       },
-    }).parse();
+    }).compress();
   },
 });
 
 Deno.bench({
   name: "should return a stucture with a single syllable",
   fn: () => {
-    new Compressor({ a: "a" }).parse();
+    new Compressor({ a: "a" }).compress();
   },
 });
 
@@ -55,7 +55,7 @@ Deno.bench({
       a: {
         bout: "bout",
       },
-    }).parse();
+    }).compress();
   },
 });
 
@@ -67,7 +67,7 @@ Deno.bench({
         ble: "ble",
         bout: "bout",
       },
-    }).parse();
+    }).compress();
   },
 });
 
@@ -81,7 +81,7 @@ Deno.bench({
           borne: "borne",
         },
       },
-    }).parse();
+    }).compress();
   },
 });
 
@@ -99,7 +99,7 @@ Deno.bench({
           doned: "doned",
         },
       },
-    }).parse();
+    }).compress();
   },
 });
 
@@ -117,7 +117,7 @@ Deno.bench({
           dant: "dant",
         },
       },
-    }).parse();
+    }).compress();
   },
 });
 
@@ -144,6 +144,6 @@ Deno.bench({
           },
         },
       },
-    }).parse();
+    }).compress();
   },
 });

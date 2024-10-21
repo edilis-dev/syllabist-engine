@@ -1,11 +1,11 @@
 import { assertEquals } from "@std/assert";
 import { resolve } from "@std/path";
 
-import { Cleanup } from "../Actions/Utility/Cleanup.js";
-import { Setup } from "../Actions/Utility/Setup.js";
 import { Standard } from "../../Constants.js";
 import { Standardise } from "../../Format.js";
 import * as Update from "../Actions/Update.js";
+import { Cleanup } from "../Actions/Utility/Cleanup.js";
+import { Setup } from "../Actions/Utility/Setup.js";
 
 const { time, tmp } = await Setup();
 

@@ -1,7 +1,7 @@
 import { spy, stub } from "@std/testing/mock";
 import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
 
-export function fetch({ success, failure } = {}) {
+export function fetch({ failure, success } = {}) {
   if (success) {
     return stub(globalThis, "fetch", () =>
       Promise.resolve(
