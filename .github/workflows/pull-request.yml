@@ -107,5 +107,4 @@ jobs:
       - name: Run Workflow
         run: |
           cd e2e
-          deno run --allow-all Actions/Utility/Server.js &
-          deno run --allow-all Workflows/Transform-Compress.js
+          deno run --allow-all Workflows/Separate.js
