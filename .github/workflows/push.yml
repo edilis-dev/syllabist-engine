@@ -109,4 +109,4 @@ jobs:
       - name: Run Complete Workflow
         run: |
           cd e2e
-          deno run --allow-all Workflows/Separate.js
+          deno run --allow-all Workflows/Update-Separate.js

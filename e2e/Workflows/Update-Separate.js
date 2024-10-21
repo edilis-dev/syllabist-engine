@@ -20,8 +20,6 @@ const actual = await Deno.readTextFile(
   resolve(tmp, Separator.defaults.files.output),
 );
 
-console.log(`ACTUAL: ${actual}`);
-
 const expected = await Deno.readTextFile(
   resolve(Deno.cwd(), "Expected/Separate.txt"),
 );
