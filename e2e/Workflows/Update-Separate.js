@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import { resolve } from "@std/path";
 
-import { Standard } from "../../Constants.js";
+import { Standard } from "../../Format.constants.js";
 import { Standardise } from "../../Format.js";
 import * as Separator from "../Actions/Separate.js";
 import { Cleanup } from "../Actions/Utility/Cleanup.js";
@@ -20,7 +20,7 @@ const actual = await Deno.readTextFile(
   resolve(tmp, Separator.defaults.files.output),
 );
 
-console.log(resolve(tmp, Separator.defaults.files.output));
+console.log(`ACTUAL: ${actual}`);
 
 const expected = await Deno.readTextFile(
   resolve(Deno.cwd(), "Expected/Separate.txt"),
