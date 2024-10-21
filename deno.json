@@ -1,6 +1,6 @@
 {
-  "version": "0.1",
-  "deno": 2,
+  "name": "@edilis/syllabist-engine",
+  "version": "0.1.0",
   "imports": {
     "@std/assert": "jsr:@std/assert@1.0.3",
     "@std/dotenv": "jsr:@std/dotenv@0.225.1",
@@ -12,6 +12,12 @@
     "@std/streams": "jsr:@std/streams@1.0.3",
     "@std/testing": "jsr:@std/testing@1.0.1"
   },
+  "exports": "./mod.js",
+  "publish": {
+    "include": ["*.js"],
+    "exclude": ["*.bench.js", "*.test.js", "Stubs.js"]
+  },
+  "license": "GPL-3.0-or-later",
   "lock": {
     "frozen": true
   }
