@@ -41,10 +41,16 @@ jobs:
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run tests
-        run: deno test --allow-all --coverage
+        run: deno test --allow-all --coverage --reporter=junit
 
       - name: Upload coverage
         uses: codecov/codecov-action@b203f00e21e8678aa5d26b967170503dbb855a18
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@983465b8d8414906a3ad05612a640f1d1e770028
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
