@@ -45,7 +45,7 @@ jobs:
         run: deno coverage ./cov_profile --lcov > coverage.lcov
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@b203f00e21e8678aa5d26b967170503dbb855a18
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
