@@ -41,7 +41,7 @@ jobs:
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run tests
-        run: deno test --allow-all --coverage --reporter=junit
+        run: deno test --allow-all --coverage --junit-path=junit.xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@b203f00e21e8678aa5d26b967170503dbb855a18
