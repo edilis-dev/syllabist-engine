@@ -59,6 +59,6 @@ All `Deno` components should have benchmarks.
 
 ## Status
 
-[![Syllabist Engine](https://github.com/edilis-dev/syllabist-engine/actions/workflows/commit.yml/badge.svg)](https://github.com/edilis-dev/syllabist-engine/actions/workflows/commit.yml)
+[![Syllabist Engine (Publish)](https://github.com/edilis-dev/syllabist-engine/actions/workflows/publish.yml/badge.svg)](https://github.com/edilis-dev/syllabist-engine/actions/workflows/publish.yml)
 
 [![codecov](https://codecov.io/gh/edilis-dev/syllabist-engine/graph/badge.svg?token=X6DGUNFS7S)](https://codecov.io/gh/edilis-dev/syllabist-engine)
