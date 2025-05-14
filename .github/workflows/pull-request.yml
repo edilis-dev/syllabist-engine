@@ -39,10 +39,7 @@ jobs:
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run tests
-        run: deno test --allow-all --coverage=cov_profile
-
-      - name: Collect coverage
-        run: deno coverage ./cov_profile --lcov > coverage.lcov
+        run: deno test --allow-all --coverage
 
       - name: Upload coverage
         uses: codecov/codecov-action@b203f00e21e8678aa5d26b967170503dbb855a18
