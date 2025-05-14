@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Verify formatting
         run: deno fmt --check
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run tests
         run: deno test --allow-all --coverage=cov_profile
@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run Complete Workflow
         run: |
@@ -74,7 +74,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run Complete Workflow
         run: |
@@ -89,7 +89,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run Complete Workflow
         run: |
@@ -104,7 +104,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
       - name: Run Complete Workflow
         run: |
