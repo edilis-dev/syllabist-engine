@@ -1,103 +1,248 @@
+/**
+ * @fileoverview Phonics constants consumed by {@link Separator} and its
+ * supporting pattern utilities. Defines the affix sets, phoneme group
+ * members, exception lists, and enumeration objects used throughout the
+ * syllabification pipeline.
+ */
+
 /* Affixes */
 
+/**
+ * Common UK English word prefixes used by the bidirectional affix scanner
+ * in {@link Separator.#separate}. When a prefix is identified, its length
+ * is used as the left boundary of the root that is passed to
+ * {@link Separator.#root} for syllabification.
+ */
 export const Prefixes = new Set([
+  "be",
+  "com",
+  "con",
   "de",
   "dis",
+  "en",
   "ex",
+  "fore",
   "im",
   "in",
+  "inter",
   "mis",
   "non",
+  "out",
+  "over",
   "pre",
+  "pro",
   "re",
+  "sub",
+  "super",
+  "trans",
   "un",
+  "under",
+  "uni",
 ]);
 
+/**
+ * Common UK English word suffixes used by the bidirectional affix scanner
+ * in {@link Separator.#separate}. Vowel-initial suffixes interact with the
+ * geminate-consonant boundary adjustment in {@link Separator.#separate}.
+ */
 export const Suffixes = new Set([
+  "able",
+  "al",
+  "ance",
   "ed",
+  "ence",
+  "est",
   "ful",
+  "ible",
   "ie",
   "ify",
   "ing",
   "ise",
+  "ish",
+  "ive",
   "ize",
   "less",
   "ly",
+  "ment",
+  "ness",
+  "ous",
+  "sion",
+  "tion",
+]);
+
+/* Preprocessed words */
+
+/**
+ * Words whose standard pattern-matching path produces an incorrect result
+ * and must therefore bypass the normal algorithm entirely.
+ *
+ * Each entry maps the full word string to an ordered array of its correct
+ * syllables. When {@link Separator#separate} encounters a line that matches
+ * a key in this map, it joins the array with `;` and emits that string
+ * directly, skipping affix scanning and {@link Separator.#root} completely.
+ *
+ * Entries are needed when:
+ * - A VowelDigraph suppression would prevent a necessary split (e.g.
+ *   `"quiet"` — `ui` is a digraph, but the word is two syllables).
+ * - The pattern matching path for the root would produce the wrong number
+ *   of syllables regardless of exceptions (e.g. `"sequence"` — the
+ *   suffix `"ence"` would be stripped before the root reaches `#root`).
+ */
+export const PreprocessedWords = new Map([
+  ["publish", ["pub", "lish"]],
+  ["quiet", ["qui", "et"]],
+  ["sequence", ["se", "quence"]],
+]);
+
+/* Silent consonant pairs */
+
+/**
+ * Terminal consonant pairs in which the final letter is phonemically silent
+ * in UK English (e.g. `mb` → /m/ in "lamb", "thumb").
+ *
+ * {@link Separator.#root} removes the silent letter before pattern matching
+ * to avoid inflating the consonant count, then restores it to the last
+ * syllable of the result.
+ */
+export const SilentFinalPairs = new Set(["mb"]);
+
+/**
+ * Initial consonant pairs in which the first letter is phonemically silent
+ * in UK English (e.g. `gn` → /n/ in "gnome", "gnash").
+ *
+ * {@link Separator.#root} removes the silent letter before pattern matching,
+ * then prepends it back onto the first syllable of the result.
+ */
+export const SilentInitialPairs = new Set(["gn"]);
+
+/* Closed syllable exceptions */
+
+/**
+ * Words where the VCV pattern should produce a **closed** first syllable
+ * (VC|V split) rather than the default **open** one (V|CV split).
+ *
+ * English VCV words default to an open syllable (long vowel, e.g.
+ * `"tiger"` → `ti;ger`). This set contains the common exceptions where
+ * the vowel before the single bridge consonant is short and the consonant
+ * must therefore close the first syllable (e.g. `"camel"` → `cam;el`).
+ *
+ * The check is applied inside the `VCV` branch of {@link Separator.#root}
+ * after the trigraph exception has been tested.
+ */
+export const ClosedVCVWords = new Set([
+  "body",
+  "cabin",
+  "camel",
+  "comic",
+  "comet",
+  "copy",
+  "credit",
+  "dragon",
+  "habit",
+  "level",
+  "lemon",
+  "magic",
+  "melon",
+  "model",
+  "novel",
+  "panic",
+  "planet",
+  "rapid",
+  "robin",
+  "solid",
+  "topic",
+  "valid",
+  "visit",
+  "wagon",
 ]);
 
 /* Blend sounds */
 
+/** Consonant blends beginning with `l` (e.g. `bl`, `cl`, `fl`). */
 export const LBlends = new Set(["bl", "cl", "fl", "gl", "pl", "sl"]);
 
-export const OtherBlends = new Set([
-  "dw",
-  "scr",
-  "shr",
-  "spl",
-  "spr",
-  "squ",
-  "sw",
-  "thr",
-  "tw",
-]);
+/** Consonant blends that do not fall into the L, R, or S categories. */
+export const OtherBlends = new Set(["dw", "scr", "shr", "spl", "spr", "squ", "sw", "thr", "tw"]);
 
+/** Consonant blends ending with `r` (e.g. `br`, `cr`, `tr`). */
 export const RBlends = new Set(["br", "cr", "dr", "fr", "gr", "pr", "tr"]);
 
-export const SBlends = new Set([
-  "sc",
-  "sk",
-  "sl",
-  "sm",
-  "sn",
-  "sp",
-  "st",
-  "sw",
-]);
+/** Consonant blends beginning with `s` (e.g. `sc`, `sp`, `st`). */
+export const SBlends = new Set(["sc", "sk", "sl", "sm", "sn", "sp", "st", "sw"]);
 
 /* Digraphs */
 
+/** Two-letter consonant units that produce a single consonant sound (e.g. `sh`, `th`, `ch`). */
 export const ConsonantDigraphs = new Set(["sh", "th", "ch", "wh", "ck", "ph"]);
 
+/** Consonant digraphs that appear at the end of syllables or words. */
 export const FinalDigraphs = new Set(["ch", "ck", "sh", "ss", "th"]);
 
-export const InitialDigraphs = new Set([
-  "ch",
-  "kn",
-  "ph",
-  "sh",
-  "th",
-  "wh",
-  "wr",
-]);
+/** Consonant digraphs that appear at the start of syllables or words (includes silent-onset pairs such as `kn` and `wr`). */
+export const InitialDigraphs = new Set(["ch", "kn", "ph", "sh", "th", "wh", "wr"]);
 
+/**
+ * Two-letter vowel units that represent a single vowel sound or diphthong.
+ * Includes r-controlled vowels (`ar`, `er`, `ir`, `or`, `ur`) which function
+ * as phonemic units in non-rhotic UK English.
+ *
+ * When the VV pattern fires and the matched pair is a member of this set,
+ * the split is suppressed — the pair is treated as one syllable nucleus.
+ */
 export const VowelDigraphs = new Set([
   "ai",
+  "ar",
+  "au",
+  "aw",
   "ay",
   "ea",
   "ee",
   "ei",
+  "er",
+  "ew",
   "ie",
+  "ir",
   "oa",
   "oe",
+  "oi",
   "oo",
+  "or",
+  "oy",
   "ue",
   "ui",
+  "ur",
 ]);
 
+/**
+ * Four-letter vowel units that represent a single sound (e.g. `augh`, `eigh`,
+ * `ough`). When detected in the VV branch, the entire word is returned
+ * unsplit to prevent tearing the unit apart.
+ */
 export const Quadgraphs = new Set(["augh", "eigh", "ough"]);
 
-export const Trigraphs = new Set([
-  "air",
-  "are",
-  "dge",
-  "ear",
-  "igh",
-  "ore",
-  "tch",
-]);
+/**
+ * Three-letter phoneme units that must be kept intact during syllabification.
+ * Trigraphs such as `dge` (/dʒ/) and `tch` (/tʃ/) are common at word ends;
+ * `air`, `are`, `ear`, `igh`, `ore` are vowel-r and vowel-digraph units.
+ *
+ * In the VCCV branch, a word whose last three characters form a trigraph has
+ * its split suppressed entirely. In the VCV branch, a trigraph spanning the
+ * `head`+`pattern` region prevents the vowel from being separated.
+ */
+export const Trigraphs = new Set(["air", "are", "dge", "ear", "igh", "ore", "tch"]);
 
 /* Glued sounds */
 
+/**
+ * Phonics "glued" (or "welded") sound endings that must stay together as a
+ * unit because the vowel and following consonant(s) are inseparable in
+ * pronunciation (e.g. `ild` in "child", `ing` in "sing").
+ *
+ * The full set tested at runtime also includes vowel+`nk` and vowel+`ng`
+ * clusters, which are generated dynamically in {@link Groups.GluedSounds}.
+ * When a glued sound is detected in the VCCCV branch, three consonants are
+ * kept with the first syllable rather than the default two.
+ */
 export const GluedSounds = new Set(["ild", "ind", "ing", "old", "olt", "ost"]);
 
 /* Letter Groups */
@@ -126,13 +271,30 @@ export const Consonants = new Set([
   "z",
 ]);
 
-/* The letter Y is not a vowel, however some words such as "lazy"
- * require it to be regarded as a vowel to match the VCV pattern
+/**
+ * The set of characters treated as vowels for pattern-matching purposes.
+ *
+ * > **Note:** `y` is included here even though it is also in {@link Consonants}.
+ * > Without `y` in the vowel set, words like `"lazy"` would not fire VCV
+ * > (no second vowel to close the pattern), producing incorrect results.
+ * > Callers that need to distinguish phonemic vowels from `y` must do so
+ * > outside this set.
  */
 export const Vowels = new Set(["a", "e", "i", "o", "u", "y"]);
 
 /* Other */
 
+/**
+ * Known compound words and their constituent parts, used by
+ * {@link Separator.#root} before any phonetic pattern matching.
+ *
+ * When a root matches a key in this map, it is split at the compound
+ * boundary and each part is passed back through `#root` recursively,
+ * ensuring both halves are correctly syllabified.
+ *
+ * @example
+ * CompoundWords.get("football"); // → ["foot", "ball"]
+ */
 export const CompoundWords = new Map([
   ["ablebodied", ["able", "bodied"]],
   ["aboveboard", ["above", "board"]],
@@ -2272,6 +2434,11 @@ export const CompoundWords = new Map([
   ["zookeeper", ["zoo", "keeper"]],
 ]);
 
+/**
+ * Discriminant values for the five blend-sound categories, used as the
+ * optional second argument to {@link Groups.BlendSounds.test} to restrict
+ * the test to a specific sub-category.
+ */
 export const BlendTypes = Object.freeze({
   Blend: "blend",
   L: "L blend",
@@ -2280,6 +2447,11 @@ export const BlendTypes = Object.freeze({
   S: "S blend",
 });
 
+/**
+ * Discriminant values for the five digraph position categories, used as the
+ * optional second argument to {@link Groups.Digraphs.test} to restrict the
+ * test to a specific sub-category.
+ */
 export const DigraphTypes = Object.freeze({
   Consonant: "consonant digraph",
   Digraph: "digraph",
@@ -2288,6 +2460,13 @@ export const DigraphTypes = Object.freeze({
   Vowel: "vowel digraph",
 });
 
+/**
+ * Log-message type labels used when {@link Separator.#root} identifies a
+ * phoneme exception that overrides the default split point for a pattern.
+ * `Blend` and `Digraph` reference the corresponding type-discriminant
+ * objects so that callers can use sub-category strings (e.g.
+ * `PatternExceptions.Blend.R`, `PatternExceptions.Digraph.Consonant`).
+ */
 export const PatternExceptions = Object.freeze({
   Blend: BlendTypes,
   Digraph: DigraphTypes,

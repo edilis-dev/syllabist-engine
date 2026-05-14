@@ -32,11 +32,7 @@ Deno.test({
 Deno.test({
   name: "add should throw an error for missing date",
   fn: () => {
-    assertThrows(
-      () => new Calendar().add(),
-      TypeError,
-      "Empty date",
-    );
+    assertThrows(() => new Calendar().add(), TypeError, "Empty date");
   },
   ignore: false,
 });
@@ -180,11 +176,7 @@ Deno.test({
 Deno.test({
   name: "is should throw an error for missing before and after",
   fn: () => {
-    assertThrows(
-      () => new Calendar(new Date("1970-01-31")).is(),
-      TypeError,
-      "Empty before and after",
-    );
+    assertThrows(() => new Calendar(new Date("1970-01-31")).is(), TypeError, "Empty before and after");
   },
   ignore: false,
 });
@@ -192,11 +184,7 @@ Deno.test({
 Deno.test({
   name: "is should throw an error for missing date",
   fn: () => {
-    assertThrows(
-      () => new Calendar().is(),
-      TypeError,
-      "Empty date",
-    );
+    assertThrows(() => new Calendar().is(), TypeError, "Empty date");
   },
   ignore: false,
 });
@@ -230,11 +218,7 @@ Deno.test({
 Deno.test({
   name: "subtract should throw an error for missing date",
   fn: () => {
-    assertThrows(
-      () => new Calendar().subtract(),
-      TypeError,
-      "Empty date",
-    );
+    assertThrows(() => new Calendar().subtract(), TypeError, "Empty date");
   },
   ignore: false,
 });

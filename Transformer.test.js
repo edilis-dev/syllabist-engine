@@ -137,8 +137,7 @@ Deno.test({
 });
 
 Deno.test({
-  name:
-    "should return a structure with combining syllables within sibling syllables",
+  name: "should return a structure with combining syllables within sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -170,8 +169,100 @@ Deno.test({
 });
 
 Deno.test({
-  name:
-    "should return a group with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "should add combinator marker when a shorter word arrives after a longer one",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "wa;ter;borne";
+        yield "wa;ter";
+      },
+    };
+
+    const actual = await new Transformer(iter).transform();
+
+    const expected = {
+      wa: {
+        ter: {
+          "": "",
+          borne: "borne",
+        },
+      },
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "should correctly insert remaining keys when extending a leaf by more than one level",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "a;cet";
+        yield "a;cet;y;le;ne";
+      },
+    };
+
+    const actual = await new Transformer(iter).transform();
+
+    const expected = {
+      a: {
+        cet: {
+          "": "",
+          y: {
+            le: {
+              ne: "ne",
+            },
+          },
+        },
+      },
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "should produce the same tree regardless of whether shorter or longer words arrive first",
+  fn: async () => {
+    const iterLongerFirst = {
+      async *[Symbol.asyncIterator]() {
+        yield "a;ban;don;ment";
+        yield "a;ban;don;ed";
+        yield "a;ban;don";
+      },
+    };
+
+    const iterShorterFirst = {
+      async *[Symbol.asyncIterator]() {
+        yield "a;ban;don";
+        yield "a;ban;don;ed";
+        yield "a;ban;don;ment";
+      },
+    };
+
+    const expected = {
+      a: {
+        ban: {
+          don: {
+            "": "",
+            ed: "ed",
+            ment: "ment",
+          },
+        },
+      },
+    };
+
+    assertEquals(await new Transformer(iterLongerFirst).transform(), expected);
+    assertEquals(await new Transformer(iterShorterFirst).transform(), expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "should return a group with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {

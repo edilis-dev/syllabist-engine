@@ -1,10 +1,10 @@
 import { assertEquals } from "@std/assert";
 import { resolve } from "@std/path";
 
-import { Standardise } from "../../Format.js";
-import * as Separator from "../Actions/Separate.js";
+import { Normalise } from "../../Format.js";
 import * as Compress from "../Actions/Compress.js";
 import * as Expand from "../Actions/Expand.js";
+import * as Separator from "../Actions/Separate.js";
 import * as Transform from "../Actions/Transform.js";
 import { Cleanup } from "../Actions/Utility/Cleanup.js";
 import { Setup } from "../Actions/Utility/Setup.js";
@@ -13,7 +13,7 @@ const { tmp } = await Setup();
 
 await Separator.separate({
   files: {
-    input: resolve(Deno.cwd(), "Input/Separate.txt"),
+    input: resolve(Deno.cwd(), "Expected", Separator.defaults.files.input),
     output: resolve(tmp, Separator.defaults.files.output),
   },
 });
@@ -39,14 +39,10 @@ await Expand.expand({
   },
 });
 
-const actual = await Deno.readTextFile(
-  resolve(tmp, Expand.defaults.files.output),
-);
+const actual = await Deno.readTextFile(resolve(tmp, Expand.defaults.files.output));
 
-const expected = await Deno.readTextFile(
-  resolve(Deno.cwd(), "Expected/Complete.json"),
-);
+const expected = await Deno.readTextFile(resolve(Deno.cwd(), "Expected", Expand.defaults.files.output));
 
-assertEquals(Standardise({ data: actual }), Standardise({ data: expected }));
+assertEquals(Normalise({ data: actual }), Normalise({ data: expected }));
 
 await Cleanup({ tmp });

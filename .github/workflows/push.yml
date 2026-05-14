@@ -1,17 +1,17 @@
-name: Syllabist Engine (Push)
+name: Syllabist Engine
 
 on:
+  pull_request:
+    branches: ["*"]
   push:
-    branches: ["main"]
+    branches: ["*"]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   Format:
@@ -22,13 +22,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
-      - name: Verify formatting
-        run: deno fmt --check
+      - name: Run formatter
+        run: deno x oxfmt --check
 
       - name: Run linter
-        run: deno lint
+        run: deno x oxlint
 
   Test:
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run tests
         run: deno test --allow-all --coverage --junit-path=junit.xml
@@ -62,14 +62,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Complete.js
 
-  Compress-Expand:
+  Compress:
     runs-on: ubuntu-latest
 
     steps:
@@ -77,14 +77,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
-          deno run --allow-all Workflows/Compress-Expand.js
+          deno run --allow-all Workflows/Compress.js
 
-  Transform-Compress:
+  Expand:
     runs-on: ubuntu-latest
 
     steps:
@@ -92,14 +92,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
-          deno run --allow-all Workflows/Transform-Compress.js
+          deno run --allow-all Workflows/Expand.js
 
-  Update-Separate:
+  Separate:
     runs-on: ubuntu-latest
 
     steps:
@@ -107,9 +107,39 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
-          deno run --allow-all Workflows/Update-Separate.js
+          deno run --allow-all Workflows/Separate.js
+
+  Transform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
+
+      - name: Run Workflow
+        run: |
+          cd e2e
+          deno run --allow-all Workflows/Transform.js
+
+  # Update:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Setup repo
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup Deno
+  #       uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
+
+  #     - name: Run Workflow
+  #       run: |
+  #         cd e2e
+  #         deno run --allow-all Workflows/Update.js

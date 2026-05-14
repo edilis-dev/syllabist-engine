@@ -9,31 +9,17 @@ import { Setup } from "../Actions/Utility/Setup.js";
 
 const { tmp } = await Setup();
 
-await Compress.compress({
-  files: {
-    input: resolve(Deno.cwd(), "Input/Transform.json"),
-    output: resolve(tmp, Compress.defaults.files.output),
-  },
-});
-
 await Expand.expand({
   files: {
-    input: resolve(tmp, Expand.defaults.files.input),
+    input: resolve(Deno.cwd(), "Expected", Compress.defaults.files.output),
     output: resolve(tmp, Expand.defaults.files.output),
   },
 });
 
-const actual = await Deno.readTextFile(
-  resolve(tmp, Expand.defaults.files.output),
-);
+const actual = await Deno.readTextFile(resolve(tmp, Expand.defaults.files.output));
 
-const expected = await Deno.readTextFile(
-  resolve(Deno.cwd(), "Expected/Complete.json"),
-);
+const expected = await Deno.readTextFile(resolve(Deno.cwd(), "Expected", Expand.defaults.files.output));
 
-assertEquals(
-  Standardise({ data: actual }),
-  Standardise({ data: expected }),
-);
+assertEquals(Standardise({ data: actual }), Standardise({ data: expected }));
 
 await Cleanup({ tmp });

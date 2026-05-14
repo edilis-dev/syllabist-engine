@@ -1,6 +1,5 @@
 import { assertRejects } from "@std/assert";
 import { assertSpyCallArgs, assertSpyCalls } from "@std/testing/mock";
-import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
 import { FakeTime } from "@std/testing/time";
 
 import { fetch, readTextFile, remove, writeTextFile } from "./Stubs.js";
@@ -182,11 +181,7 @@ Deno.test({
       },
     });
 
-    await assertRejects(
-      () => new Updater().update(),
-      TypeError,
-      '{"error":"failure"}',
-    );
+    await assertRejects(() => new Updater().update(), TypeError, '{"error":"failure"}');
 
     assertSpyCalls(fetchMock, 1);
 
@@ -202,11 +197,7 @@ Deno.test({
       failure: true,
     });
 
-    await assertRejects(
-      () => new Updater().update(),
-      TypeError,
-      STATUS_TEXT[STATUS_CODE.BadRequest],
-    );
+    await assertRejects(() => new Updater().update(), TypeError, "failure");
 
     assertSpyCalls(fetchMock, 1);
 

@@ -1,7 +1,7 @@
-import { assert, assertThrows } from "@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 
-import { Standardise } from "./Format.js";
 import { Standard } from "./Format.constants.js";
+import { Standardise } from "./Format.js";
 
 Deno.test({
   name: "should throw an error for missing data",
@@ -41,29 +41,24 @@ Deno.test({
       data: '{"a":{"ble":"ble","bout":"bout"}}',
     });
 
-    const expected = {
-      a: {
-        ble: "ble",
-        bout: "bout",
-      },
-    };
+    const expected = JSON.stringify({ a: { ble: "ble", bout: "bout" } }, null, 2);
 
-    assert(actual, expected);
+    assertEquals(actual, expected);
   },
   ignore: false,
 });
 
 Deno.test({
-  name: "should Standardise JSON",
+  name: "should Standardise Text",
   fn: () => {
     const actual = Standardise({
       data: "    text  ",
       type: Standard.Text,
     });
 
-    const expected = "test";
+    const expected = "text";
 
-    assert(actual, expected);
+    assertEquals(actual, expected);
   },
   ignore: false,
 });

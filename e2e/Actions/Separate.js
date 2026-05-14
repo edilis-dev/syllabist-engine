@@ -4,18 +4,14 @@ import { Separator } from "../../Separator.js";
 
 export const defaults = {
   files: {
-    input: "separate.txt",
-    output: "separate.txt",
+    input: "Words.txt",
+    output: "Separate.txt",
   },
 };
 
-export const separate = async ({
-  files: { input = defaults.files.input, output = defaults.files.output },
-} = defaults) => {
+export const separate = async ({ files: { input = defaults.files.input, output = defaults.files.output } } = defaults) => {
   const file = await Deno.open(input);
-  const iter = file.readable
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(new TextLineStream());
+  const iter = file.readable.pipeThrough(new TextDecoderStream()).pipeThrough(new TextLineStream());
 
   const data = await new Separator(iter).separate();
 
