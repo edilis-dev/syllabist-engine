@@ -44,8 +44,8 @@ export class Path {
    * subtree reached by traversing `path` through the tree.
    *
    * `path` is walked key-by-key to navigate to the target subtree. If the
-   * reached node is not an object (e.g. a leaf string value), an empty
-   * array is returned immediately. Otherwise, falsy keys are filtered out
+   * reached node is a string (a leaf value), an empty array is returned
+   * immediately. Otherwise, falsy keys are filtered out
    * of the subtree's entries — excluding the empty-string combinator
    * marker `""` — leaving only valid syllable keys. The effective count
    * is clamped to the number of those filtered keys via
@@ -67,14 +67,17 @@ export class Path {
    *   of suggestions to return. The actual count is capped at the number
    *   of non-falsy keys in the reached subtree, so fewer values may be
    *   returned.
-   * @param {number} [options.minimum=0] - Currently used for logging only;
-   *   does not affect the range of generated values.
+   * @param {number} [options.minimum=1] - The lower bound for the
+   *   effective suggestion count. Both `maximum` and `minimum` are
+   *   normalised to `Math.max(maximum, minimum)` before use, so the
+   *   effective value is always the larger of the two.
    * @returns {string[]} An array of up to `maximum` syllable keys from
    *   the subtree, or an empty array if `path` is empty or leads to a
    *   non-object node.
-   * @throws {TypeError} If traversal reaches a `null` value — since
-   *   `typeof null === "object"` the non-object guard is bypassed and
-   *   `Object.entries(null)` throws.
+   * @throws {TypeError} If traversal reaches any value that is neither a
+   *   string nor a plain object — such as `undefined` when a path key
+   *   does not exist, or `null` — the string guard is bypassed and
+   *   `Object.entries` throws.
    * @throws {DOMException} If the clamped count exceeds `16384`,
    *   propagated from {@link Path.#getRandomValues}.
    *
@@ -184,22 +187,23 @@ export class Path {
    * each pass a {@link Uint32Array} of length `count` is filled with
    * cryptographically random values via {@link Crypto.getRandomValues}.
    * Each raw value is mapped to a bounded index with
-   * `Math.floor((seed / value) % maximum)`. Once the {@link Set} reaches
-   * `count` entries the inner loop exits early via a `break`; the outer
-   * loop repeats only when a full pass yields fewer than `count` unique
-   * indices due to collisions.
+   * `Math.floor((seed / index) % count)`. Once the {@link Set} reaches
+   * `maximum` entries the inner loop exits early via a `break`; the outer
+   * loop repeats while `values.size < count && values.size < minimum`,
+   * so it exits as soon as either bound is reached.
    *
-   * > **Note:** `Math.floor((seed / value) % maximum)` produces values in
-   * > `{0, …, maximum − 1}` — `maximum` distinct possibilities. The loop
-   * > terminates as long as `count ≤ maximum`, which the caller enforces
-   * > via `Math.min`.
+   * > **Note:** `Math.floor((seed / index) % count)` produces values in
+   * > `{0, …, count − 1}` — `count` distinct possibilities. The loop
+   * > terminates as long as `count ≤ minimum`, which holds when the
+   * > caller normalises both via `Math.max`.
    *
    * @param {object} options - The generation options.
    * @param {number} options.count - The number of unique indices to collect.
    * @param {number} options.maximum - The exclusive upper bound for
    *   generated indices. Each index falls in `{0, …, maximum − 1}`.
-   * @param {number} [options.minimum] - Currently used for logging only;
-   *   does not affect the range of generated values.
+   * @param {number} [options.minimum] - Additional upper termination
+   *   bound for the outer loop. The loop exits when `values.size` reaches
+   *   either `count` or `minimum`, whichever comes first.
    * @returns {Set<number>} A set of exactly `count` unique integer indices.
    * @throws {DOMException} If `count` exceeds `16384` and the resulting
    *   {@link Uint32Array} buffer surpasses the `65536`-byte quota imposed
