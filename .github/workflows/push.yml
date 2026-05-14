@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run formatter
         run: deno x oxfmt --check
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run tests
         run: deno test --allow-all --coverage --junit-path=junit.xml
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run Workflow
         run: |
@@ -77,7 +77,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run Workflow
         run: |
@@ -92,7 +92,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run Workflow
         run: |
@@ -107,7 +107,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run Workflow
         run: |
@@ -122,7 +122,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
       - name: Run Workflow
         run: |
@@ -137,7 +137,7 @@ jobs:
   #       uses: actions/checkout@v4
 
   #     - name: Setup Deno
-  #       uses: denoland/setup-deno@v2
+  #       uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
 
   #     - name: Run Workflow
   #       run: |
