@@ -95,11 +95,11 @@ export class Path {
     const minimum = Math.max(max, min);
 
     if (!path.length) {
-      this.#log.info("Suggestions disabled", { maximum, minimum, path, });
+      this.#log.info("Suggestions disabled", { maximum, minimum, path });
 
       return [];
     } else {
-      this.#log.info("Creating suggestions", { maximum, minimum, path, });
+      this.#log.info("Creating suggestions", { maximum, minimum, path });
 
       let suggestionTree = this.#tree;
 

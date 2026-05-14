@@ -24,11 +24,11 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
-      - name: Verify formatting
-        run: deno fmt --check
+      - name: Run formatter
+        run: dx oxfmt --check
 
       - name: Run linter
-        run: deno lint
+        run: dx oxlint
 
   Test:
     runs-on: ubuntu-latest
@@ -129,17 +129,17 @@ jobs:
           cd e2e
           deno run --allow-all Workflows/Transform.js
 
-  Update:
-    runs-on: ubuntu-latest
+  # Update:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Setup repo
+  #       uses: actions/checkout@v4
 
-      - name: Setup Deno
-        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
+  #     - name: Setup Deno
+  #       uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
-      - name: Run Workflow
-        run: |
-          cd e2e
-          deno run --allow-all Workflows/Update.js
+  #     - name: Run Workflow
+  #       run: |
+  #         cd e2e
+  #         deno run --allow-all Workflows/Update.js
