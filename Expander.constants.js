@@ -4,7 +4,7 @@ export const Type = Object.freeze({
   Value: "value",
 });
 
-export const Symbol = Object.freeze({
+export const Symbols = Object.freeze({
   Combinator: "~",
   Concatenator: ">",
   GroupEnd: "]",
@@ -12,4 +12,4 @@ export const Symbol = Object.freeze({
   Sibling: "|",
 });
 
-export const Charset = new RegExp(`[${Object.values(Symbol).join("\\")}a-z-]`);
+export const Charset = new RegExp(`[${Object.values(Symbols).join("\\")}a-z-]`);

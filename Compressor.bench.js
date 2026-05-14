@@ -86,8 +86,7 @@ Deno.bench({
 });
 
 Deno.bench({
-  name:
-    "should return a structure with combining syllables within sibling syllables",
+  name: "should return a structure with combining syllables within sibling syllables",
   fn: () => {
     new Compressor({
       a: {
@@ -122,8 +121,7 @@ Deno.bench({
 });
 
 Deno.bench({
-  name:
-    "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: () => {
     new Compressor({
       ac: {

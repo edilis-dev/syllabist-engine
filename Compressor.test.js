@@ -7,11 +7,7 @@ Deno.test({
   fn: () => {
     const compressor = new Compressor({ "": null });
 
-    assertThrows(
-      () => compressor.compress(),
-      TypeError,
-      "Cannot convert undefined or null to object",
-    );
+    assertThrows(() => compressor.compress(), TypeError, "Cannot convert undefined or null to object");
   },
   ignore: false,
 });
@@ -60,8 +56,7 @@ Deno.test({
       },
     }).compress();
 
-    const expected =
-      "a>[bout]\nac>[com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]]";
+    const expected = "a>[bout]\nac>[com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]]";
 
     assertEquals(actual, expected);
   },
@@ -133,8 +128,7 @@ Deno.test({
 });
 
 Deno.test({
-  name:
-    "should return a structure with combining syllables within sibling syllables",
+  name: "should return a structure with combining syllables within sibling syllables",
   fn: () => {
     const actual = new Compressor({
       a: {
@@ -179,8 +173,7 @@ Deno.test({
 });
 
 Deno.test({
-  name:
-    "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: () => {
     const actual = new Compressor({
       ac: {

@@ -3,7 +3,7 @@ import { resolve } from "@std/path";
 import { Updater } from "../../Updater.js";
 
 export const defaults = {
-  manifest: "manifest.json",
+  manifest: "Manifest.json",
   source: "http://localhost:8000/source.txt",
 };
 
@@ -14,8 +14,6 @@ export const setup = async ({ tmp, manifest = defaults.manifest }) => {
   await Deno.writeTextFile(resolve(tmp, manifest), '{"latest":{}}');
 };
 
-export const update = async ({
-  source = defaults.source,
-} = defaults) => {
+export const update = async ({ source = defaults.source } = defaults) => {
   await new Updater().update(source);
 };

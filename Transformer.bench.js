@@ -56,8 +56,7 @@ Deno.bench({
 });
 
 Deno.bench({
-  name:
-    "should return a structure with combining syllables within sibling syllables",
+  name: "should return a structure with combining syllables within sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -73,8 +72,7 @@ Deno.bench({
 });
 
 Deno.bench({
-  name:
-    "should return a group with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "should return a group with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {

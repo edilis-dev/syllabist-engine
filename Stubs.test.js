@@ -1,10 +1,5 @@
+import { assertEquals, assertInstanceOf, assertObjectMatch, assertRejects } from "@std/assert";
 import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
-import {
-  assertEquals,
-  assertInstanceOf,
-  assertObjectMatch,
-  assertRejects,
-} from "@std/assert";
 
 import * as Stubs from "./Stubs.js";
 
@@ -157,6 +152,7 @@ Deno.test({
     const expected = {
       status: STATUS_CODE.BadRequest,
       statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
+      text: "failure",
     };
 
     const stub = await Stubs.fetch({ failure: true });
@@ -271,9 +267,9 @@ Deno.test({
   name: "fetch stub should return failure Text and status",
   fn: async () => {
     const expected = {
-      text: "failure",
       status: STATUS_CODE.InternalServerError,
       statusText: STATUS_TEXT[STATUS_CODE.InternalServerError],
+      text: "failure",
     };
 
     const stub = await Stubs.fetch({ failure: expected });

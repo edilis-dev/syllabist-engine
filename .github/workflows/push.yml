@@ -1,17 +1,17 @@
-name: Syllabist Engine (Push)
+name: Syllabist Engine
 
 on:
+  pull_request:
+    branches: ["*"]
   push:
-    branches: ["main"]
+    branches: ["*"]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   Format:
@@ -64,7 +64,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Complete.js
@@ -79,7 +79,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Compress-Expand.js
@@ -94,7 +94,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Transform-Compress.js
@@ -109,7 +109,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
 
-      - name: Run Complete Workflow
+      - name: Run Workflow
         run: |
           cd e2e
           deno run --allow-all Workflows/Update-Separate.js
