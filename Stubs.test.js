@@ -1,5 +1,6 @@
 import { assertEquals, assertInstanceOf, assertObjectMatch, assertRejects } from "@std/assert";
 import { STATUS_CODE, STATUS_TEXT } from "@std/http/status";
+import { assertSpyCalls } from "@std/testing/mock";
 
 import * as Stubs from "./Stubs.js";
 
@@ -291,11 +292,13 @@ Deno.test({
 });
 
 Deno.test({
-  name: "fetch spy",
+  name: "fetch spy should record invocations",
   fn: async () => {
     const stub = await Stubs.fetch();
+    await stub().catch(() => {});
 
     assertInstanceOf(stub, Function);
+    assertSpyCalls(stub, 1);
 
     stub.restore();
   },
@@ -367,11 +370,13 @@ Deno.test({
 });
 
 Deno.test({
-  name: "readTextFile spy",
+  name: "readTextFile spy should record invocations",
   fn: async () => {
     const stub = await Stubs.readTextFile();
+    await stub().catch(() => {});
 
     assertInstanceOf(stub, Function);
+    assertSpyCalls(stub, 1);
 
     stub.restore();
   },
@@ -443,11 +448,13 @@ Deno.test({
 });
 
 Deno.test({
-  name: "remove spy",
+  name: "remove spy should record invocations",
   fn: async () => {
     const stub = await Stubs.remove();
+    await stub().catch(() => {});
 
     assertInstanceOf(stub, Function);
+    assertSpyCalls(stub, 1);
 
     stub.restore();
   },
@@ -519,11 +526,13 @@ Deno.test({
 });
 
 Deno.test({
-  name: "writeTextFile spy",
+  name: "writeTextFile spy should record invocations",
   fn: async () => {
     const stub = await Stubs.writeTextFile();
+    await stub().catch(() => {});
 
     assertInstanceOf(stub, Function);
+    assertSpyCalls(stub, 1);
 
     stub.restore();
   },

@@ -3,7 +3,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import { Expander } from "./Expander.js";
 
 Deno.test({
-  name: "should throw an error for missing data",
+  name: "expand should throw a TypeError for missing data",
   fn: async () => {
     await assertRejects(() => new Expander().expand(), TypeError);
   },
@@ -11,7 +11,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should throw an error when for empty line",
+  name: "expand should throw a TypeError for an empty line",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -25,68 +25,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should ignore unexpandable characters",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "a+b=-o.u*t";
-      },
-    };
-
-    const actual = await new Expander(iter).expand();
-
-    const expected = {
-      "ab-out": "ab-out",
-    };
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should merge multiple lines",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "a>bout";
-        yield "ac>com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]";
-      },
-    };
-
-    const actual = await new Expander(iter).expand();
-
-    const expected = {
-      a: {
-        bout: "bout",
-      },
-      ac: {
-        com: {
-          pa: {
-            ni: {
-              ment: "ment",
-            },
-            ny: {
-              "": "",
-              ing: "ing",
-            },
-          },
-          plice: "plice",
-          plish: {
-            "": "",
-            ment: "ment",
-          },
-        },
-      },
-    };
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return a stucture with a single syllable",
+  name: "expand should return a structure with a single syllable",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -106,7 +45,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with two concatenated syllables",
+  name: "expand should return a structure with two concatenated syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -128,7 +67,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with two sibling syllables",
+  name: "expand should return a structure with two sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -151,7 +90,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with two combining syllables",
+  name: "expand should return a structure with two combining syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -176,7 +115,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with combining syllables within sibling syllables",
+  name: "expand should return a structure with combining syllables within sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -204,7 +143,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with adjacent sibling syllables",
+  name: "expand should return a structure with adjacent sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -233,7 +172,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "expand should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -261,6 +200,91 @@ Deno.test({
             ment: "ment",
           },
         },
+      },
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "expand should ignore unexpandable characters",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "a+b=-o.u*t";
+      },
+    };
+
+    const actual = await new Expander(iter).expand();
+
+    const expected = {
+      "ab-out": "ab-out",
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "expand should merge multiple lines into a single tree",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "a>bout";
+        yield "ac>com>[pa>[ni>[ment]|ny~[ing]]|plice|plish~[ment]]";
+      },
+    };
+
+    const actual = await new Expander(iter).expand();
+
+    const expected = {
+      a: {
+        bout: "bout",
+      },
+      ac: {
+        com: {
+          pa: {
+            ni: {
+              ment: "ment",
+            },
+            ny: {
+              "": "",
+              ing: "ing",
+            },
+          },
+          plice: "plice",
+          plish: {
+            "": "",
+            ment: "ment",
+          },
+        },
+      },
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "expand should merge multiple lines which share the same root key",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "a>bout";
+        yield "a>ble";
+      },
+    };
+
+    const actual = await new Expander(iter).expand();
+
+    const expected = {
+      a: {
+        ble: "ble",
+        bout: "bout",
       },
     };
 

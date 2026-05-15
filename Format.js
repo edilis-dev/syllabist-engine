@@ -34,7 +34,7 @@ import { Standard } from "./Format.constants.js";
  * Normalise({ data: '{"b":"b","":"","a":"a"}' });
  * // → '{\n  "": "",\n  "a": "a",\n  "b": "b"\n}'
  */
-export function Normalise({ data }) {
+export function Normalise({ data } = {}) {
   function sort(value) {
     if (typeof value !== "object" || value === null) {
       return value;
@@ -55,6 +55,10 @@ export function Normalise({ data }) {
     }
 
     return sorted;
+  }
+
+  if (!data) {
+    throw new TypeError("Empty data");
   }
 
   return JSON.stringify(sort(JSON.parse(data)), null, 2);
@@ -100,7 +104,7 @@ export function Normalise({ data }) {
  * Standardise({ data: "  hello  ", type: "text" });
  * // → "hello"
  */
-export function Standardise({ data, type = Standard.JSON }) {
+export function Standardise({ data, type = Standard.JSON } = {}) {
   if (!data) {
     throw new TypeError("Empty data");
   }

@@ -3,7 +3,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import { Transformer } from "./Transformer.js";
 
 Deno.test({
-  name: "should throw an error for missing data",
+  name: "transform should throw a TypeError for missing data",
   fn: async () => {
     await assertRejects(() => new Transformer().transform(), TypeError);
   },
@@ -11,35 +11,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should work with customised separator",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "a+zal+ea";
-        yield "aard+vark";
-      },
-    };
-
-    const actual = await new Transformer(iter).transform("+");
-
-    const expected = {
-      a: {
-        zal: {
-          ea: "ea",
-        },
-      },
-      aard: {
-        vark: "vark",
-      },
-    };
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return a syllable group",
+  name: "transform should return a structure with a single syllable",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -59,7 +31,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return groups of adjacent syllable",
+  name: "transform should return a structure with adjacent syllable groups",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -87,7 +59,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a group with sibling syllables",
+  name: "transform should return a structure with sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -111,7 +83,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a group with combining siblings",
+  name: "transform should return a structure with combining syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -137,7 +109,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a structure with combining syllables within sibling syllables",
+  name: "transform should return a structure with combining syllables within sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -169,7 +141,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should add combinator marker when a shorter word arrives after a longer one",
+  name: "transform should add a combinator marker when a shorter word arrives after a longer one",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -195,7 +167,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should correctly insert remaining keys when extending a leaf by more than one level",
+  name: "transform should correctly insert remaining keys when extending a leaf by more than one level",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -225,7 +197,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should produce the same tree regardless of whether shorter or longer words arrive first",
+  name: "transform should produce the same tree regardless of whether shorter or longer words arrive first",
   fn: async () => {
     const iterLongerFirst = {
       async *[Symbol.asyncIterator]() {
@@ -262,7 +234,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return a group with combining syllables, concatenating syllables and adjacent sibling syllables",
+  name: "transform should return a structure with combining syllables, concatenating syllables and adjacent sibling syllables",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -295,6 +267,87 @@ Deno.test({
             ment: "ment",
           },
         },
+      },
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "transform should not insert duplicate words into the tree",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "a;ban;don";
+        yield "a;ban;don;ed";
+        yield "a;ban;don;ed";
+        yield "a;ban;don;ment";
+      },
+    };
+
+    const expected = {
+      a: {
+        ban: {
+          don: {
+            "": "",
+            ed: "ed",
+            ment: "ment",
+          },
+        },
+      },
+    };
+
+    assertEquals(await new Transformer(iter).transform(), expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "transform should insert a single-syllable line as a top-level leaf alongside multi-syllable lines",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "boat"; // no separator — exercises the warn path
+        yield "a;board"; // normal multi-syllable line
+      },
+    };
+
+    const actual = await new Transformer(iter).transform();
+
+    const expected = {
+      a: {
+        board: "board",
+      },
+      boat: "boat",
+    };
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "transform should return the correct structure when using a custom separator",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "a+zal+ea";
+        yield "aard+vark";
+      },
+    };
+
+    const actual = await new Transformer(iter).transform("+");
+
+    const expected = {
+      a: {
+        zal: {
+          ea: "ea",
+        },
+      },
+      aard: {
+        vark: "vark",
       },
     };
 

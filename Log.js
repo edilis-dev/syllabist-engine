@@ -10,8 +10,6 @@ import { ConsoleHandler, getLogger, setup } from "@std/log";
 
 const level = Deno.env.get("level") ?? "INFO";
 
-console.log(level);
-
 /**
  * Creates and returns a configured logger whose structured JSON output
  * includes the caller's class name in every log line.

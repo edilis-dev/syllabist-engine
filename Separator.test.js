@@ -3,7 +3,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import { Separator } from "./Separator.js";
 
 Deno.test({
-  name: "should throw an error for missing data",
+  name: "separate should throw a TypeError for missing data",
   fn: async () => {
     await assertRejects(() => new Separator().separate(), TypeError);
   },
@@ -11,7 +11,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should throw an error when for empty line",
+  name: "separate should throw a TypeError for an empty line",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -25,7 +25,25 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated LE pattern",
+  name: "separate should return a single-syllable word unseparated",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "car";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "car";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split by the LE pattern",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -46,7 +64,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCCCV pattern",
+  name: "separate should return a word split by the VCCCCV pattern",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -64,7 +82,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCCV pattern",
+  name: "separate should return a word split by the VCCCV pattern",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -82,25 +100,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCCV Pattern with blend",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "complex";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `com;plex`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated VCCCV Pattern with glued",
+  name: "separate should return a VCCCV word that keeps a glued sound together",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -118,7 +118,25 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCV pattern",
+  name: "separate should return a multisyllabic word with the VCCCV pattern correctly separated",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "complimentary";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "com;pli;men;ta;ry";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split by the VCCV pattern",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -137,7 +155,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCV Pattern with blend",
+  name: "separate should return a VCCV word where an R-blend determines the split point",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -155,7 +173,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCV Pattern with digraph",
+  name: "separate should return a VCCV word where a consonant digraph keeps two letters together",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -174,7 +192,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCCV pattern with trigraph",
+  name: "separate should return a VCCV word where a trigraph suppresses the split",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -192,229 +210,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VCV pattern",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "lazy";
-        yield "tiger";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `la;zy\nti;ger`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated VCV Pattern with trigraph ",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "glare";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `glare`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated VV pattern",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "lion";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `li;on`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated VV Pattern with digraph",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "reindeer";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `re;in;deer`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated VV pattern with quadgraph",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "laugh";
-        yield "through";
-        yield "weigh";
-        yield "weight";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `laugh\nthrough\nweigh\nweight`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return unseperated single syllable",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "car";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = "car";
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated compound words",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "football";
-        yield "handbag";
-        yield "withstand";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = `foot;ball\nhand;bag\nwith;stand`;
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated prefix",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "refresh";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = "re;fresh";
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated suffix",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "dimly";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = "dim;ly";
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return a separated prefix and sufffix",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "reify";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = "re;ify";
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separared prefix, root and sufffix",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "destabilise";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = "de;sta;bil;ise";
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should not fail VCCCV ",
-  fn: async () => {
-    const iter = {
-      async *[Symbol.asyncIterator]() {
-        yield "complimentary";
-      },
-    };
-
-    const actual = await new Separator(iter).separate();
-
-    const expected = "com;pli;men;ta;ry";
-
-    assertEquals(actual, expected);
-  },
-  ignore: false,
-});
-
-Deno.test({
-  name: "should return separated VCCV words containing word-final trigraph",
+  name: "separate should return a VCCV word split before a word-final trigraph",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -434,18 +230,17 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated VV vowel digraph words with following syllables",
+  name: "separate should treat qu as a unit when determining the VCCV split point",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
-        yield "autumn";
-        yield "nautical";
+        yield "liquid";
       },
     };
 
     const actual = await new Separator(iter).separate();
 
-    const expected = "au;tumn\nnau;tic;al";
+    const expected = "liq;uid";
 
     assertEquals(actual, expected);
   },
@@ -453,7 +248,44 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated closed VCV pattern words",
+  name: "separate should return a word split by the VCV pattern",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "lazy";
+        yield "tiger";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = `la;zy\nti;ger`;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a VCV word where a trigraph keeps the head and pattern together",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "glare";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = `glare`;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split by the closed VCV pattern",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -475,17 +307,17 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated qu cluster word with VCCV pattern",
+  name: "separate should return a word split by the VV pattern",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
-        yield "liquid";
+        yield "lion";
       },
     };
 
     const actual = await new Separator(iter).separate();
 
-    const expected = "liq;uid";
+    const expected = `li;on`;
 
     assertEquals(actual, expected);
   },
@@ -493,7 +325,157 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return unseparated single syllable for silent initial gn pair",
+  name: "separate should return a VV word that is not split across a vowel digraph",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "reindeer";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = `re;in;deer`;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a VV word that is not split across a quadgraph",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "laugh";
+        yield "through";
+        yield "weigh";
+        yield "weight";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = `laugh\nthrough\nweigh\nweight`;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word with a vowel digraph split across further syllable boundaries",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "autumn";
+        yield "nautical";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "au;tumn\nnau;tic;al";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a compound word split at its compound boundary",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "football";
+        yield "handbag";
+        yield "withstand";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = `foot;ball\nhand;bag\nwith;stand`;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split at its prefix boundary",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "refresh";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "re;fresh";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split at its suffix boundary",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "dimly";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "dim;ly";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split at its prefix boundary when the root begins with a vowel",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "reify";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "re;ify";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word split at its prefix and internal syllable boundaries",
+  fn: async () => {
+    const iter = {
+      async *[Symbol.asyncIterator]() {
+        yield "destabilise";
+      },
+    };
+
+    const actual = await new Separator(iter).separate();
+
+    const expected = "de;sta;bil;ise";
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "separate should return a word with a silent initial gn pair as a single syllable",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -511,7 +493,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated gnostic for silent initial gn pair",
+  name: "separate should return a word with a silent initial gn pair split across syllable boundaries",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -529,7 +511,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated climbing for silent final mb pair",
+  name: "separate should keep a silent final mb pair within its syllable",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -547,7 +529,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated number unaffected by silent final mb pair",
+  name: "separate should split a word where mb occurs at a normal syllable boundary",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -565,7 +547,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated x as two consonants",
+  name: "separate should treat x as two consonants when determining the split point",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {
@@ -587,7 +569,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "should return separated qu cluster words",
+  name: "separate should treat qu as a single unit when splitting",
   fn: async () => {
     const iter = {
       async *[Symbol.asyncIterator]() {

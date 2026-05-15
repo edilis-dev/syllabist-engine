@@ -4,7 +4,7 @@
  */
 
 /**
- * Searches `object` for the first key whose value strictly equals `target`
+ * Searches `data` for the first key whose value strictly equals `target`
  * and returns that key, or `null` if no match is found.
  *
  * > **Note:** If multiple keys share the same value, only the key of the
@@ -13,12 +13,14 @@
  * > **Note:** Comparison uses strict equality (`===`), so `1` and `"1"` are
  * > treated as distinct values.
  *
- * @param {object} object - The object to search through.
- * @param {*} target - The value to search for.
+ * @param {object} data - The object to search through. Must be truthy;
+ *   falsy values throw.
+ * @param {*} target - The value to search for. Must be truthy; falsy
+ *   values throw.
  * @returns {string|null} The key whose value equals `target`, or `null` if no
  *   such key exists.
- * @throws {TypeError} If `object` is `null` or `undefined` (`Object.entries`
- *   throws `"Cannot convert undefined or null to object"`).
+ * @throws {TypeError} If `data` is falsy (`"Empty data"`).
+ * @throws {TypeError} If `target` is falsy (`"Empty target"`).
  *
  * @example
  * ReverseLookup({ key: "value" }, "value");
@@ -28,9 +30,17 @@
  * ReverseLookup({ key: "other" }, "value");
  * // → null
  */
-export function ReverseLookup(object, target) {
+export function ReverseLookup(data, target) {
+  if (!data) {
+    throw new TypeError("Empty data");
+  }
+
+  if (!target) {
+    throw new TypeError("Empty target");
+  }
+
   return (
-    Object.entries(object)
+    Object.entries(data)
       .find(([_, value]) => value === target)
       ?.at(0) ?? null
   );

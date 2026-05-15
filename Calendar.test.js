@@ -18,6 +18,20 @@ Deno.test({
 });
 
 Deno.test({
+  name: "add should return a date in the past when given a negative value",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-31")).add({
+      days: -30,
+    });
+
+    const expected = new Date("1970-01-01");
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
   name: "add should return current date if no days",
   fn: () => {
     const actual = new Calendar(new Date("1970-01-01")).add();
@@ -73,6 +87,51 @@ Deno.test({
     const actual = new Calendar(new Date("1970-01-31")).between({
       after: new Date("1970-01-01"),
       before: new Date("1970-01-16"),
+    });
+
+    const expected = false;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "between should return false if date is exactly on the after boundary",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-01")).between({
+      after: new Date("1970-01-01"),
+      before: new Date("1970-01-31"),
+    });
+
+    const expected = false;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "between should return false if date is exactly on the before boundary",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-31")).between({
+      after: new Date("1970-01-01"),
+      before: new Date("1970-01-31"),
+    });
+
+    const expected = false;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "between should return false for any date when the range is inverted",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-16")).between({
+      after: new Date("1970-01-31"),
+      before: new Date("1970-01-01"),
     });
 
     const expected = false;
@@ -157,6 +216,34 @@ Deno.test({
 });
 
 Deno.test({
+  name: "is should return false if date is exactly on the after boundary",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-01")).is({
+      after: new Date("1970-01-01"),
+    });
+
+    const expected = false;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "is should return false if date is exactly on the before boundary",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-31")).is({
+      before: new Date("1970-01-31"),
+    });
+
+    const expected = false;
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
   name: "is should defer to between if before and after",
   fn: () => {
     const date = new Calendar(new Date("1970-01-16"));
@@ -197,6 +284,20 @@ Deno.test({
     });
 
     const expected = new Date("1970-01-01");
+
+    assertEquals(actual, expected);
+  },
+  ignore: false,
+});
+
+Deno.test({
+  name: "subtract should return a date in the future when given a negative value",
+  fn: () => {
+    const actual = new Calendar(new Date("1970-01-01")).subtract({
+      days: -30,
+    });
+
+    const expected = new Date("1970-01-31");
 
     assertEquals(actual, expected);
   },
