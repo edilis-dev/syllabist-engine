@@ -94,6 +94,10 @@ export class Path {
     const maximum = Math.max(max, min);
     const minimum = Math.max(max, min);
 
+    if (!this.#tree) {
+      throw new TypeError("Empty tree");
+    }
+
     if (!path.length) {
       this.#log.info("Suggestions disabled", { maximum, minimum, path });
 
@@ -159,6 +163,10 @@ export class Path {
    */
   traverse(path) {
     this.#log.info("Checking path traversal", { path });
+
+    if (!this.#tree) {
+      throw new TypeError("Empty tree");
+    }
 
     let currentTree = this.#tree;
 

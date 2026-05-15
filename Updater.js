@@ -27,17 +27,19 @@ import { CreateLogger } from "./Log.js";
  * 1. **Fetch** — retrieve the word-list text from the remote source.
  * 2. **Hash** — compute a SHA-256 digest of the fetched text.
  * 3. **Read** — load the local manifest JSON from the artifacts directory.
- * 4. **Compare** — if the digest matches `manifest.latest.digest`, stop early.
+ * 4. **Compare** — if the digest matches the current-version entry's digest (under
+ *    the key configured by `latest`), stop early.
  * 5. **Write** — save the new text as `<digest>.txt` in the artifacts directory.
  * 6. **Update** — write the new entry to the manifest and archive the previous one.
  * 7. **Prune** — remove manifest entries and files older than `lifetime` days.
  *
  * ### Manifest format
- * The manifest is a JSON object whose `latest` key holds the current version's
- * metadata. Every previous version is stored under its digest as a key:
+ * The manifest is a JSON object whose current-version entry is stored under the
+ * key configured by the `latest` environment variable (default `"latest"`).
+ * Every previous version is stored under its digest as a key:
  * ```json
  * {
- *   "latest":   { "created": "<iso>", "digest": "<sha256hex>" },
+ *   "<latest>": { "created": "<iso>", "digest": "<sha256hex>" },
  *   "<sha256hex>": { "created": "<iso>", "obsoleted": "<iso>" }
  * }
  * ```
@@ -81,7 +83,7 @@ export class Updater {
   /** @type {string | undefined} */
   #digest;
 
-  /** @type {(Record<string, ManifestArchivedEntry> & { latest?: ManifestLatestEntry }) | undefined} */
+  /** @type {Record<string, ManifestLatestEntry | ManifestArchivedEntry> | undefined} */
   #manifest;
 
   /** @type {import("@std/log").Logger} */
@@ -135,7 +137,7 @@ export class Updater {
       await this.#hash();
       await this.#read();
 
-      if (this.#digest === this.#manifest?.latest?.digest) {
+      if (this.#digest === this.#manifest?.[this.#config.latest]?.digest) {
         this.#log.info("Source is unchanged");
       } else {
         this.#log.info("Source changed");
@@ -249,12 +251,12 @@ export class Updater {
   }
 
   /**
-   * Adds the new digest to the manifest as `latest`, archives the previous
-   * `latest` entry under its digest key with an `obsoleted` timestamp, and
-   * persists the updated manifest to disk.
+   * Adds the new digest to the manifest under the `latest` configuration key,
+   * archives the previous current-version entry under its digest key with an
+   * `obsoleted` timestamp, and persists the updated manifest to disk.
    *
-   * If there is no previous `latest.digest` (first run), the manifest is
-   * initialised with only the new `latest` entry.
+   * If there is no previous current-version entry (first run), the manifest is
+   * initialised with only the new entry.
    *
    * @returns {Promise<void>}
    */
@@ -266,7 +268,7 @@ export class Updater {
       path,
     });
 
-    const previous = this.#manifest.latest;
+    const previous = this.#manifest[this.#config.latest];
     this.#log.debug("Storing previous value", {
       value: previous,
     });
@@ -294,14 +296,14 @@ export class Updater {
 
     this.#manifest = previous?.digest
       ? {
-          latest,
+          [this.#config.latest]: latest,
           [previous.digest]: {
             created: previous.created,
             obsoleted: timestamp,
           },
           ...existing,
         }
-      : { latest };
+      : { [this.#config.latest]: latest };
     this.#log.debug("Created new manifest contents", {
       contents: this.#manifest,
     });
@@ -314,10 +316,12 @@ export class Updater {
    * Removes manifest entries and their corresponding artifact files whose
    * `obsoleted` date is earlier than `lifetime` days ago.
    *
-   * The `latest` entry is always preserved. Entries whose `obsoleted` date is
-   * within the retention window are kept. For each entry that falls outside the
-   * window, the corresponding `<digest>.txt` file is deleted; a warning is
-   * logged if the file cannot be removed (e.g. it was already deleted).
+   * The current-version entry (stored under the `latest` configuration key) is
+   * always preserved. Archived entries whose `obsoleted` date is within the
+   * retention window are kept. Entries that have no `obsoleted` field are also
+   * kept rather than throwing. For each entry that falls outside the window,
+   * the corresponding `<digest>.txt` file is deleted; a warning is logged if
+   * the file cannot be removed (e.g. it was already deleted).
    *
    * @returns {Promise<void>}
    */
@@ -335,7 +339,7 @@ export class Updater {
       end,
     });
 
-    const latest = this.#manifest.latest;
+    const latest = this.#manifest[this.#config.latest];
     this.#log.debug("Storing latest value", {
       value: latest,
     });
@@ -355,7 +359,7 @@ export class Updater {
 
     const { keep, remove } = Object.entries(existing).reduce(
       ({ keep, remove }, [key, value]) =>
-        new Calendar(new Date(value.obsoleted)).is({ before: end })
+        value.obsoleted && new Calendar(new Date(value.obsoleted)).is({ before: end })
           ? { keep, remove: { [key]: value, ...remove } }
           : { keep: { [key]: value, ...keep }, remove },
       { keep: {}, remove: {} },
@@ -369,7 +373,7 @@ export class Updater {
     });
 
     this.#manifest = {
-      latest,
+      [this.#config.latest]: latest,
       ...keep,
     };
     this.#log.debug("Created new manifest contents", {

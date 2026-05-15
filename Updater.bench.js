@@ -8,7 +8,7 @@ Deno.bench({
   fn: async (bench) => {
     const time = new FakeTime(0);
 
-    const fetchMock = Stubs.fetch({ success: { text: "success" } });
+    const fetchMock = Stubs.fetch({ success: true });
     const readMock = Stubs.readTextFile({
       success: { contents: '{"latest": {}}' },
     });

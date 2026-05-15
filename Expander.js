@@ -24,8 +24,9 @@ import { CreateLogger } from "./Log.js";
  * | `\|`    | Separates sibling syllables within a group |
  *
  * Each string in the iterable represents one top-level entry in the output
- * tree. Results from successive lines are merged via a shallow spread, so a
- * later line can extend or silently overwrite keys produced by an earlier one.
+ * tree. Results from successive lines are merged into a shared accumulator
+ * — when a later line shares a key with an earlier one at any depth, the
+ * subtrees are combined rather than overwritten.
  *
  * ### Unexpandable characters
  * Any character outside the allowed charset (a-z, `-`, and the five symbols
@@ -76,9 +77,10 @@ export class Expander {
    * merged syllable tree.
    *
    * Each line is parsed character-by-character via {@link Expander#iterator}
-   * and {@link Expander.#expand}. Results are merged into the running
-   * accumulator with a shallow object spread — a later line can therefore
-   * silently overwrite a root key produced by an earlier line.
+   * and {@link Expander.#expand}. The running accumulator is passed into each
+   * parse call so that successive lines build directly on the same tree — when
+   * lines share a key at any level, existing nodes are preserved and new
+   * entries are added alongside them.
    *
    * @returns {Promise<Record<string, unknown>>} A promise that resolves to the hierarchical
    *   syllable tree. Each leaf value is a string equal to its key.
@@ -112,7 +114,7 @@ export class Expander {
 
         value = {
           ...value,
-          ...this.#expand(),
+          ...this.#expand({ value }),
         };
 
         this.#log.debug("Insert result", {
@@ -371,10 +373,13 @@ export class Expander {
    * logged, and `value` is returned unchanged to prevent a crash.
    *
    * The three node shapes are:
-   * - `Type.Empty` (`"empty"`) — inserts `{ "": "" }`, marking the key as a
-   *   word that can stand alone or combine with sibling syllables.
-   * - `Type.Group` (`"group"`) — inserts `{}`, opening a new group for child
-   *   syllables.
+   * - `Type.Empty` (`"empty"`) — adds the `""` combinator marker to the key's
+   *   node, marking it as a word that can stand alone or combine with sibling
+   *   syllables. Any existing children are preserved by spreading them into the
+   *   new node; if the key is absent a fresh `{ "": "" }` is created.
+   * - `Type.Group` (`"group"`) — opens a new empty group `{}` when the key is
+   *   absent. If the key already points to an existing subtree that subtree is
+   *   preserved unchanged.
    * - `Type.Value` (`"value"`) — inserts the key string itself as a leaf node.
    *
    * `value` is mutated in place and the same reference is returned.
@@ -419,13 +424,13 @@ export class Expander {
 
     switch (type) {
       case Type.Empty:
-        target[key] = { "": "" };
+        target[key] = target[key] ? { "": "", ...target[key] } : { "": "" };
         this.#log.debug("Insert result", {
           value,
         });
         return value;
       case Type.Group:
-        target[key] = {};
+        target[key] = target[key] ?? {};
         this.#log.debug("Insert result", {
           value,
         });
